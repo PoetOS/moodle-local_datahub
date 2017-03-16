@@ -1896,23 +1896,48 @@ class rlip_importplugin_version1 extends rlip_importplugin_base {
             $record->category = $categoryid;
         }
 
-        $record->id = $DB->get_field('course', 'id', array('shortname' => $record->shortname));
+        try {
+            $record->id = $DB->get_field('course', 'id', array('shortname' => $record->shortname), MUST_EXIST);
+        } catch (dml_multiple_records_exception $dmle1) {
+            $identifier = $this->mappings['shortname'];
+            $this->fslogger->log_failure("{$identifier} value of \"{$record->shortname}\" refers to multiple courses - check DB!",
+                    0, $filename, $this->linenumber, $record, 'course');
+            return false;
+        } catch (dml_missing_record_exception $dmle2) {
+            $record->id = false;
+        }
         if (empty($record->id)) {
-            if (isset($record->idnumber) && $record->idnumber !== '' && $DB->count_records('course', array('idnumber' => $record->idnumber)) == 1) {
+            $numrecs = 0;
+            if (isset($record->idnumber) && $record->idnumber !== '' &&
+                    ($numrecs = $DB->count_records('course', array('idnumber' => $record->idnumber))) == 1) {
                 $record->id = $DB->get_field('course', 'id', array('idnumber' => $record->idnumber));
             } else {
-                $identifier = $this->mappings['shortname'];
-                $this->fslogger->log_failure("{$identifier} value of \"{$record->shortname}\" does not refer to a valid course.", 0, $filename, $this->linenumber, $record, "course");
+                if ($numrecs) {
+                    $msg = 'refers to multiple courses - check DB!';
+                    $identifier = $this->mappings['idnumber'];
+                    $val = $record->idnumber;
+                } else {
+                    $msg = 'does not refer to a valid course.';
+                    $identifier = $this->mappings['shortname'];
+                    $val = $record->shortname;
+                }
+                $this->fslogger->log_failure("{$identifier} value of \"{$val}\" {$msg}",
+                        0, $filename, $this->linenumber, $record, 'course');
                 return false;
             }
         } else {
             if (isset($record->idnumber) && $record->idnumber !== '' && $DB->record_exists('course', array('idnumber' => $record->idnumber))) {
-                $checkrecordid = $DB->get_field('course', 'id', array('idnumber' => $record->idnumber));
+                $identifier = $this->mappings['idnumber'];
+                try {
+                    $checkrecordid = $DB->get_field('course', 'id', array('idnumber' => $record->idnumber), MUST_EXIST);
+                } catch (dml_multiple_records_exception $dmle) {
+                    $this->fslogger->log_failure("{$identifier} value of \"{$record->idnumber}\" refers to multiple courses - check DB!",
+                            0, $filename, $this->linenumber, $record, 'course');
+                    return false;
+                }
                 if ($checkrecordid != $record->id) {
-                    $identifier = $this->mappings['idnumber'];
                     $this->fslogger->log_failure("{$identifier} value of \"{$record->idnumber}\" already exists ".
                             "in an existing course.", 0, $filename, $this->linenumber, $record, 'course');
-
                     return false;
                 }
             }

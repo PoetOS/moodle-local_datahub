@@ -138,8 +138,9 @@ class version1filesystemlogging_testcase extends rlip_test {
      * @param array $data The import data to process
      * @param string $expectederror The error we are expecting (message only)
      * @param user $entitytype One of 'user', 'course', 'enrolment'
+     * @param bool $debug enable to output lines from filesystem log.
      */
-    protected function assert_data_produces_error($data, $expectederror, $entitytype) {
+    protected function assert_data_produces_error($data, $expectederror, $entitytype, $debug = false) {
         global $CFG, $DB;
         require_once($CFG->dirroot.'/local/datahub/lib/rlip_fileplugin.class.php');
         require_once($CFG->dirroot.'/local/datahub/lib/rlip_dataplugin.class.php');
@@ -187,6 +188,9 @@ class version1filesystemlogging_testcase extends rlip_test {
 
         while (!feof($pointer)) {
             $error = fgets($pointer);
+            if ($debug) {
+                error_log("assert_data_produces_error(): Got error from file => {$error}");
+            }
             if (!empty($error)) { // Could be an empty new line.
                 if (is_array($expectederror)) {
                     $actualerror[] = substr($error, $prefixlength);
@@ -260,6 +264,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         // Create the course.
         $course = new stdClass;
         $course->shortname = 'rlipshortname';
+        $course->idnumber = 'rlipidnumber';
         $course->fullname = 'rlipfullname';
         $course->category = $categoryid;
 
@@ -5491,6 +5496,52 @@ class version1filesystemlogging_testcase extends rlip_test {
         $expectederror = "[course.csv line 2] Course with shortname \"rlipshortname\" could not be created. shortname value of";
         $expectederror .= " \"rlipshortname\" refers to a course that already exists.\n";
         $this->assert_data_produces_error($data, $expectederror, 'course');
+    }
+
+    /**
+     * Validate log message for duplicate course shortname/idnumber in DB for update.
+     * @see DATAHUB-1607
+     */
+    public function test_version1importlogsdupcourseonupdate() {
+        global $CFG, $DB;
+
+        // Suppress debugging messages for these tests.
+        $olddebug = $CFG->debug;
+        $CFG->debug = 0;
+
+        $cid = $this->create_test_course();
+        $crec = $DB->get_record('course', ['id' => $cid]);
+        unset($crec->id);
+        // Create dup in course DB table.
+        // Change idnumber ...
+        $origidnumber = $crec->idnumber;
+        $crec->idnumber = 'New_Idnumber'; // Arb.
+        $cid2 = $DB->insert_record('course', $crec);
+
+        $data = [
+            'action' => 'update',
+            'shortname' => 'rlipshortname',
+            'idnumber' => 'rlipidnumber',
+            'fullname' => 'rlipfullname',
+            'category' => 'rlipcategory'
+        ];
+
+        $expectederror = '[course.csv line 2] Course with shortname "rlipshortname" could not be updated. '.
+                "shortname value of \"rlipshortname\" refers to multiple courses - check DB!\n";
+        $this->assert_data_produces_error($data, $expectederror, 'course');
+
+        // Now test with duplicate idnumber only.
+        $crec->idnumber = $origidnumber;
+        $crec->shortname = 'New_Shortname'; // Arb.
+        $crec->id = $cid2;
+        $DB->update_record('course', $crec);
+
+        $expectederror = '[course.csv line 2] Course with shortname "rlipshortname" could not be updated. '.
+                "idnumber value of \"rlipidnumber\" refers to multiple courses - check DB!\n";
+        $this->assert_data_produces_error($data, $expectederror, 'course');
+
+        // Reset debugging to original value.
+        $CFG->debug = $olddebug;
     }
 
     /**
