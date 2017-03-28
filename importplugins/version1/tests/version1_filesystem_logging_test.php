@@ -502,6 +502,8 @@ class version1filesystemlogging_testcase extends rlip_test {
      * Validates that an error is logged for an empty country field on user create
      */
     public function test_version1importlogsemptyusercountryoncreate() {
+        $this->markTestSkipped('Country no longer a required field');
+
         // Create mapping record.
         $this->create_mapping_record('user', 'country', 'customcountry');
 
@@ -528,7 +530,7 @@ class version1filesystemlogging_testcase extends rlip_test {
      */
     public function test_version1importlogscreatemessagewithuseridnumber() {
         // Create mapping record.
-        $this->create_mapping_record('user', 'country', 'customcountry');
+        $this->create_mapping_record('user', 'lastname', 'customlastname');
 
         // Validation for an empty country field.
         $data = array(
@@ -536,15 +538,14 @@ class version1filesystemlogging_testcase extends rlip_test {
             'username' => 'rlipusername',
             'password' => 'Rlippassword!0',
             'firstname' => 'Rlipfirstname',
-            'lastname' => 'Rliplastname',
+            'customlastname' => '',
             'email' => 'rlipuser@rlipdomain.com',
             'city' => 'Rlipcity',
-            'customcountry' => '',
             'idnumber' => 'rlipidnumber'
         );
 
         $expectederror = "[user.csv line 2] User with username \"rlipusername\", email \"rlipuser@rlipdomain.com\", ";
-        $expectederror .= "idnumber \"rlipidnumber\" could not be created. Required field customcountry is unspecified ";
+        $expectederror .= "idnumber \"rlipidnumber\" could not be created. Required field customlastname is unspecified ";
         $expectederror .= "or empty.\n";
         $this->assert_data_produces_error($data, $expectederror, 'user');
     }
@@ -1103,7 +1104,7 @@ class version1filesystemlogging_testcase extends rlip_test {
             'customcountry' => ''
         );
         $expectederror = "[user.csv line 2] User could not be created. Required fields customusername, custompassword,";
-        $expectederror .= " customfirstname, customlastname, customemail, customcity, customcountry are unspecified or empty.\n";
+        $expectederror .= " customfirstname, customlastname, customemail, customcity are unspecified or empty.\n";
         $this->assert_data_produces_error($data, $expectederror, 'user');
 
         // Actually update using create.
@@ -1452,7 +1453,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         // Username.
         $data = $basedata;
         $data['username'] = 'rlipusername';
-        $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\" successfully assigned role with shortname";
+        $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\" successfully updated enrolment and assigned role with shortname";
         $expectedmessage .= " \"rlipshortname\" on course \"rlipshortname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
@@ -1460,7 +1461,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         // Email.
         $data = $basedata;
         $data['email'] = 'rlipuser@rlipdomain.com';
-        $expectedmessage = "[enrolment.csv line 2] User with email \"rlipuser@rlipdomain.com\" successfully assigned role with";
+        $expectedmessage = "[enrolment.csv line 2] User with email \"rlipuser@rlipdomain.com\" successfully updated enrolment and assigned role with";
         $expectedmessage .= " shortname \"rlipshortname\" on course \"rlipshortname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
@@ -1468,7 +1469,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         // Idnumber.
         $data = $basedata;
         $data['idnumber'] = 'rlipidnumber';
-        $expectedmessage = "[enrolment.csv line 2] User with idnumber \"rlipidnumber\" successfully assigned role with shortname";
+        $expectedmessage = "[enrolment.csv line 2] User with idnumber \"rlipidnumber\" successfully updated enrolment and assigned role with shortname";
         $expectedmessage .= " \"rlipshortname\" on course \"rlipshortname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
@@ -1478,7 +1479,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['username'] = 'rlipusername';
         $data['email'] = 'rlipuser@rlipdomain.com';
         $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\", email \"rlipuser@rlipdomain.com\"";
-        $expectedmessage .= " successfully assigned role with shortname \"rlipshortname\" on course \"rlipshortname\".\n";
+        $expectedmessage .= " successfully updated enrolment and assigned role with shortname \"rlipshortname\" on course \"rlipshortname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
 
@@ -1487,7 +1488,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['username'] = 'rlipusername';
         $data['idnumber'] = 'rlipidnumber';
         $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\", idnumber \"rlipidnumber\" successfully";
-        $expectedmessage .= " assigned role with shortname \"rlipshortname\" on course \"rlipshortname\".\n";
+        $expectedmessage .= " updated enrolment and assigned role with shortname \"rlipshortname\" on course \"rlipshortname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
 
@@ -1496,7 +1497,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['email'] = 'rlipuser@rlipdomain.com';
         $data['idnumber'] = 'rlipidnumber';
         $expectedmessage = "[enrolment.csv line 2] User with email \"rlipuser@rlipdomain.com\", idnumber \"rlipidnumber\"";
-        $expectedmessage .= " successfully assigned role with shortname \"rlipshortname\" on course \"rlipshortname\".\n";
+        $expectedmessage .= " successfully updated enrolment and assigned role with shortname \"rlipshortname\" on course \"rlipshortname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
 
@@ -1506,7 +1507,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['email'] = 'rlipuser@rlipdomain.com';
         $data['idnumber'] = 'rlipidnumber';
         $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\", email \"rlipuser@rlipdomain.com\",";
-        $expectedmessage .= " idnumber \"rlipidnumber\" successfully assigned role with shortname \"rlipshortname\" on course";
+        $expectedmessage .= " idnumber \"rlipidnumber\" successfully updated enrolment and assigned role with shortname \"rlipshortname\" on course";
         $expectedmessage .= " \"rlipshortname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
@@ -3668,7 +3669,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         // Username.
         $data = $basedata;
         $data['username'] = 'rlipusername';
-        $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\" successfully assigned role with ";
+        $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\" successfully updated enrolment and assigned role with ";
         $expectedmessage .= "shortname \"rlipshortname\" on course \"rlipshortname\". User with username \"rlipusername\" is ";
         $expectedmessage .= "already assigned to group with name \"rlipname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
@@ -3677,7 +3678,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         // Email.
         $data = $basedata;
         $data['email'] = 'rlipuser@rlipdomain.com';
-        $expectedmessage = "[enrolment.csv line 2] User with email \"rlipuser@rlipdomain.com\" successfully assigned role with ";
+        $expectedmessage = "[enrolment.csv line 2] User with email \"rlipuser@rlipdomain.com\" successfully updated enrolment and assigned role with ";
         $expectedmessage .= "shortname \"rlipshortname\" on course \"rlipshortname\". User with email \"rlipuser@rlipdomain.com\"";
         $expectedmessage .= " is already assigned to group with name \"rlipname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
@@ -3686,7 +3687,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         // Idnumber.
         $data = $basedata;
         $data['idnumber'] = 'rlipidnumber';
-        $expectedmessage = "[enrolment.csv line 2] User with idnumber \"rlipidnumber\" successfully assigned role with shortname";
+        $expectedmessage = "[enrolment.csv line 2] User with idnumber \"rlipidnumber\" successfully updated enrolment and assigned role with shortname";
         $expectedmessage .= " \"rlipshortname\" on course \"rlipshortname\". User with idnumber \"rlipidnumber\" is already ";
         $expectedmessage .= "assigned to group with name \"rlipname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
@@ -3697,7 +3698,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['username'] = 'rlipusername';
         $data['email'] = 'rlipuser@rlipdomain.com';
         $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\", email \"rlipuser@rlipdomain.com\" ";
-        $expectedmessage .= "successfully assigned role with shortname \"rlipshortname\" on course \"rlipshortname\". User with ";
+        $expectedmessage .= "successfully updated enrolment and assigned role with shortname \"rlipshortname\" on course \"rlipshortname\". User with ";
         $expectedmessage .= "username \"rlipusername\", email \"rlipuser@rlipdomain.com\" is already assigned to group with name";
         $expectedmessage .= " \"rlipname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
@@ -3708,7 +3709,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['username'] = 'rlipusername';
         $data['idnumber'] = 'rlipidnumber';
         $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\", idnumber \"rlipidnumber\" successfully ";
-        $expectedmessage .= "assigned role with shortname \"rlipshortname\" on course \"rlipshortname\". User with username ";
+        $expectedmessage .= "updated enrolment and assigned role with shortname \"rlipshortname\" on course \"rlipshortname\". User with username ";
         $expectedmessage .= "\"rlipusername\", idnumber \"rlipidnumber\" is already assigned to group with name \"rlipname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
         $DB->delete_records('role_assignments');
@@ -3718,7 +3719,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['email'] = 'rlipuser@rlipdomain.com';
         $data['idnumber'] = 'rlipidnumber';
         $expectedmessage = "[enrolment.csv line 2] User with email \"rlipuser@rlipdomain.com\", idnumber \"rlipidnumber\" ";
-        $expectedmessage .= "successfully assigned role with shortname \"rlipshortname\" on course \"rlipshortname\". User with";
+        $expectedmessage .= "successfully updated enrolment and assigned role with shortname \"rlipshortname\" on course \"rlipshortname\". User with";
         $expectedmessage .= " email \"rlipuser@rlipdomain.com\", idnumber \"rlipidnumber\" is already assigned to group with ";
         $expectedmessage .= "name \"rlipname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
@@ -3730,7 +3731,7 @@ class version1filesystemlogging_testcase extends rlip_test {
         $data['email'] = 'rlipuser@rlipdomain.com';
         $data['idnumber'] = 'rlipidnumber';
         $expectedmessage = "[enrolment.csv line 2] User with username \"rlipusername\", email \"rlipuser@rlipdomain.com\", ";
-        $expectedmessage .= "idnumber \"rlipidnumber\" successfully assigned role with shortname \"rlipshortname\" on course";
+        $expectedmessage .= "idnumber \"rlipidnumber\" successfully updated enrolment and assigned role with shortname \"rlipshortname\" on course";
         $expectedmessage .= " \"rlipshortname\". User with username \"rlipusername\", email \"rlipuser@rlipdomain.com\", idnumber";
         $expectedmessage .= " \"rlipidnumber\" is already assigned to group with name \"rlipname\".\n";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
@@ -7133,14 +7134,12 @@ class version1filesystemlogging_testcase extends rlip_test {
             'context' => 'user',
             'instance' => 'rlipusername'
         );
-        $message = "Import file enrolment.csv was not processed because it is missing the following required column: customrole.";
-        $message .= " Please fix the import file and re-upload it.\n";
-        $expectedmessage = "[enrolment.csv line 1] {$message}";
+        $message = "Enrolment could not be created. Required field customrole is unspecified or empty.\n";
+        $expectedmessage = "[enrolment.csv line 2] {$message}";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
 
         $select = "{$DB->sql_compare_text('statusmessage')} = :statusmessage";
-        // Remove newline character.
-        $message = substr($message, 0, strlen($message) - 1);
+        $message = "One or more lines from import file enrolment.csv failed because they contain data errors. Please fix the import file and re-upload it.";
         $params = array('statusmessage' => $message);
         $exists = $DB->record_exists_select(RLIP_LOG_TABLE, $select, $params);
         $this->assertTrue($exists);
@@ -7155,11 +7154,10 @@ class version1filesystemlogging_testcase extends rlip_test {
 
         // Create mapping record.
         $this->create_mapping_record('enrolment', 'context', 'customcontext');
-        $this->create_mapping_record('enrolment', 'role', 'customrole');
 
         $data = array('action' => 'create', 'username' => 'rlipusername');
-        $message = "Import file enrolment.csv was not processed because it is missing the following required columns: ";
-        $message .= "customcontext, customrole. Please fix the import file and re-upload it.\n";
+        $message = "Import file enrolment.csv was not processed because it is missing the following required column: ";
+        $message .= "customcontext. Please fix the import file and re-upload it.\n";
         $expectedmessage = "[enrolment.csv line 1] {$message}";
         $this->assert_data_produces_error($data, $expectedmessage, 'enrolment');
 

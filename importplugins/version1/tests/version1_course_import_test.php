@@ -2746,15 +2746,15 @@ class version1courseimport_testcase extends rlip_test {
         $this->assertEquals($DB->count_records('scale'), $initialnumscale -  1);
         $this->assertEquals($DB->count_records('grade_settings'), $initialnumgradesettings -  1);
         $this->assertEquals($DB->count_records('grade_letters'), $initialnumgradeletters -  1);
-        $this->assertEquals($DB->count_records('forum'), $initialnumforum -  1);
-        $this->assertEquals($DB->count_records('course_modules'), $initialnumcoursemodules -  1);
+        $this->assertEquals($DB->count_records('forum'), $initialnumforum -  2);
+        $this->assertEquals($DB->count_records('course_modules'), $initialnumcoursemodules -  2);
 
         /*
          Uncomment the two lines below when this fix is available: http://tracker.moodle.org/browse/MDL-32988
          $this->assertEquals($DB->count_records('course_modules_completion'), $initialnumcourse_modules_completion - 1);
          $this->assertEquals($DB->count_records('course_modules_availability'), $initialnumcourse_modules_availability - 1);
         */
-        $this->assertEquals($initialnumblockinstances - 4, $DB->count_records('block_instances'));
+        $this->assertEquals($initialnumblockinstances - 1, $DB->count_records('block_instances'));
         $this->assertEquals($DB->count_records('block_positions'), 0);
         $this->assertEquals($DB->count_records('groups'), $initialnumgroups - 1);
         $this->assertEquals($DB->count_records('groups_members'), $initialnumgroupsmembers - 1);

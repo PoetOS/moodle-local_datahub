@@ -459,6 +459,8 @@ class version1createorupdate_testcase extends rlip_test {
      * actions can not create enrolments
      */
     public function test_version1createorupdatedoesnotcreateenrolmentfromupdateaction() {
+        $this->markTestSkipped('This test was written when update had no enrolment functionality.');
+
         global $DB;
 
         // Set up initial conditions.
@@ -481,7 +483,12 @@ class version1createorupdate_testcase extends rlip_test {
             'role' => 'rlipshortname'
         );
         $this->run_core_enrolment_import($importdata);
-        $this->assertEquals($DB->count_records('role_assignments'), 0);
+
+        // Check for the role assignment.
+        // Leaving this improvement in case this test is repurposed.
+        $params = array('userid' => $userid, 'roleid' => $roleid, 'contextid' => $context->id);
+        $roles = $DB->get_records('role_assignments', $params);
+        $this->assertEquals(count($roles), 0);
     }
 
     /**
