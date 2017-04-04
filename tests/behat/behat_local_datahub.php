@@ -1,6 +1,7 @@
 <?php
 
 require_once(__DIR__.'/../../../../lib/behat/behat_files.php');
+require_once(__DIR__.'/../../../../local/eliscore/lib/behat_traits.php');
 
 use Behat\Behat\Context\Step\Given as Given,
     Behat\Behat\Context\SnippetAcceptingContext,
@@ -11,6 +12,7 @@ use Behat\Behat\Context\Step\Given as Given,
     Behat\Mink\Exception\ElementNotFoundException as ElementNotFoundException;
 
 class behat_local_datahub extends behat_files implements SnippetAcceptingContext {
+    use local_eliscore_behat_trait;
     protected $sent = null;
 
     /**
@@ -70,16 +72,6 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
             $msg .= "Expected ".$string."\n";
             throw new \Exception($msg);
         }
-    }
-
-    /**
-     * Context name to level
-     * @param string $contextname context name: user, userset, program, track, class, course, courseset
-     * @return int the context level
-     */
-    public function contextname_2_level($contextname) {
-        static $contextlevelmap = ['program' => 11, 'track' => 12, 'course' => 13, 'class' => 14, 'user' => 15, 'userset' => 16, 'courseset' => 17];
-        return $contextlevelmap[$contextname];
     }
 
     /**
@@ -224,73 +216,6 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
             // No match found!
             throw new \Exception("No matching lines in log file {$lastfile} to '{$arg2}' in {$contents}");
         }
-    }
-
-    /**
-     * @Given a :arg1 record with :arg2 :arg3 exist
-     * Note: arg2 json encoded row object for table arg1
-     * arg3 = "should" | "should not" ...
-     */
-    public function aRecordWithExist($arg1, $arg2, $arg3) {
-        global $DB;
-        if ($DB->record_exists($arg1, (array)json_decode($arg2)) == ($arg3 != "should")) {
-            ob_start();
-            var_dump($DB->get_records($arg1));
-            $tmp = ob_get_contents();
-            ob_end_clean();
-            error_log("\nTABLE {$arg1} => {$tmp}\n");
-            throw new \Exception("Fail: record matching '{$arg2}' in table {$arg1} ".($arg3 == "should" ? 'not ' : '').'found!');
-        }
-    }
-
-    /**
-     * Check checkbox
-     * @param string $id base element name.
-     */
-    public function checkCheckbox($id) {
-        $page = $this->getSession()->getPage();
-        if (($chkbox = $page->find('xpath', "//input[@id='{$id}']"))) {
-            $chkbox->check();
-        } else {
-            throw new \Exception("The expected '{$id}' checkbox was not found!");
-        }
-    }
-
-    /**
-     * Click radio
-     * @param string $id base element name.
-     ^ @param string $val the value to set/click.
-     */
-    public function clickRadio($id, $val) {
-        $page = $this->getSession()->getPage();
-        $fullid = "id_{$id}_{$val}";
-        $radio = $page->find('xpath', "//input[@id='{$fullid}']");
-        if (!empty($radio)) {
-            $radio->click();
-        } else {
-            throw new \Exception("The expected '{$fullid}' radio button was not found!");
-        }
-    }
-
-    /**
-     * Select option.
-     * @param string $id base element name.
-     * @param string $val the option to select.
-     * @param bool $ignoremissing if true no exception for missing element.
-     * @return bool true if element found (default), false if not found and $ignoremissing true;
-     *         Otherwise throws exception if element not found.
-     */
-    public function selectOption($id, $val, $ignoremissing = false) {
-        $page = $this->getSession()->getPage();
-        $sel = $page->find('xpath', "//select[@id='{$id}']");
-        if (!empty($sel)) {
-            $sel->selectOption($val);
-        } else if (!$ignoremissing) {
-            throw new \Exception("The expected '{$id}' select element was not found!");
-        } else {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -481,28 +406,6 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
     }
 
     /**
-     * @Given I wait :arg1 minutes and run cron
-     */
-    public function iWaitMinutesAndRunCron($arg1) {
-        sleep((int)(60.0 * $arg1));
-        set_config('cronclionly', 0);
-        $this->getSession()->visit($this->locate_path('/admin/cron.php'));
-    }
-
-    /**
-     * @Given I wait until :arg1 and run cron
-     * @param string $arg1 string to pass to strtotime()
-     */
-    public function iWaitUntilAndRunCron($arg1) {
-        if (($ts = strtotime($arg1)) === false) {
-            throw new \Exception("Could not parse date string: {$arg1}");
-        }
-        sleep($ts - time());
-        set_config('cronclionly', 0);
-        $this->getSession()->visit($this->locate_path('/admin/cron.php'));
-    }
-
-    /**
      * @Given I upload file :arg1 for :arg2 :arg3 import
      * @param string $arg1 file in ./fixtures/ to copy to dh import area.
      * @param string $arg2 the dhimport_ plugin type: version1 or version1elis
@@ -516,21 +419,6 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
         $dest = $dest.'/'.get_config('dhimport_'.$arg2, $arg3.'_schedule_file');
         if (!copy($fpath, $dest)) {
             throw new \Exception("Failed copying '{$fpath}' to '{$dest}'");
-        }
-    }
-
-    /**
-     * @Then the following enrolments should exist:
-     */
-    public function theFollowingEnrolmentsShouldExist(TableNode $table) {
-        global $DB;
-        $data = $table->getHash();
-        foreach ($data as $datarow) {
-            if (!is_enrolled(\context_course::instance(
-                    $DB->get_field('course', 'id', ['shortname' => $datarow['course']])),
-                    $DB->get_field('user', 'id', ['username' => $datarow['user']]))) {
-                throw new \Exception("Missing enrolment of {$datarow['user']} in course {$datarow['course']}");
-            }
         }
     }
 
@@ -564,39 +452,6 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
                 throw new \Exception('Matching line '.(($arg2 == 'should') ? 'not ' :'').
                         "found in export file {$exportfile} to '{$datarow['line']}' in {$contents}");
             }
-        }
-    }
-
-    /**
-     * @Given I visit Moodle Course :arg1
-     * @param string $arg1 course shortname
-     */
-    public function iVisitMoodleCourse($arg1) {
-        global $DB;
-        $crsid = $DB->get_field('course', 'id', ['shortname' => $arg1]);
-        if (empty($crsid)) {
-            throw new \Exception("Moodle Course with shortname '{$arg1}' not found!");
-        }
-        $this->getSession()->visit($this->locate_path("/course/view.php?id={$crsid}"));
-    }
-
-    /**
-     * @Given I update the timemodified for:
-     */
-    public function iUpdateTheTimemodifiedFor(TableNode $table) {
-        global $DB;
-        $data = $table->getHash();
-        foreach ($data as $datarow) {
-            $crsid = $DB->get_field('course', 'id', ['shortname' => $datarow['gradeitem']]);
-            if (empty($crsid)) {
-                $giid = $DB->get_field('grade_items', 'id', ['itemname' => $datarow['gradeitem']]);
-            } else {
-                $giid = $DB->get_field('grade_items', 'id', ['itemtype' => 'course', 'courseid' => $crsid]);
-            }
-            if (empty($giid)) {
-                throw new \Exception("No course or grade item found matching {$datarow['gradeitem']}");
-            }
-            $DB->execute('UPDATE {grade_grades} SET timemodified = '.time().' WHERE itemid = '.$giid);
         }
     }
 
@@ -659,32 +514,6 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
             $page->fillField('id_'.$datarow['field'], $datarow['column']);
         }
         $this->find_button('Save changes')->press();
-    }
-
-    /**
-     * @Given the following Moodle user profile fields exist:
-     */
-    public function theFollowingMoodleUserProfileFieldsExist(TableNode $table) {
-        global $DB;
-        $data = $table->getHash();
-        if (empty($data)) {
-            throw new \Exception("Not data for the step \"the following Moodle user profile fields exist:\"");
-        }
-        foreach ($data as $datarow) {
-            $cat = new \stdClass;
-            $cat->name = $datarow['category'];
-            if (!($catid = $DB->get_field('user_info_category', 'id', ['name' => $cat->name]))) {
-                $catid = $DB->insert_record('user_info_category', $cat);
-            }
-            $rec = new \stdClass;
-            $rec->categoryid = $catid;
-            $rec->shortname = $datarow['name'];
-            $rec->name = $datarow['name'];
-            $rec->datatype = $datarow['type'];
-            $rec->defaultdata = $datarow['default'];
-            $rec->param1 = str_replace(',', "\n", $datarow['options']);
-            $DB->insert_record('user_info_field', $rec);
-        }
     }
 
     /**
