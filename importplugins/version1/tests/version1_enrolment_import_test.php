@@ -130,6 +130,7 @@ class version1enrolmentimport_testcase extends rlip_test {
      */
     private function create_test_user($extradata = array()) {
         global $CFG;
+        $CFG->country = 'US';
         require_once($CFG->dirroot.'/user/lib.php');
 
         $user = new stdClass;

@@ -2562,6 +2562,10 @@ class rlip_importplugin_version1 extends rlip_importplugin_base {
                         ['enrolid' => $enrolinstance['instance']->id, 'userid' => $userid]) : $this->parse_date($record->enrolmenttime);
                 $timeend = empty($record->completetime) ? $DB->get_field('user_enrolments', 'timeend',
                         ['enrolid' => $enrolinstance['instance']->id, 'userid' => $userid]) : $this->parse_date($record->completetime);
+                if (!$hasstatus) {
+                    $record->status = $DB->get_field('user_enrolments', 'status',
+                            ['enrolid' => $enrolinstance['instance']->id, 'userid' => $userid]);
+                }
             } else {
                 $timestart = empty($record->enrolmenttime) ? time() : $this->parse_date($record->enrolmenttime);
                 $timeend = empty($record->completetime) ? 0 : $this->parse_date($record->completetime);
