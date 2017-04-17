@@ -408,7 +408,7 @@ class version1exportdatabaselogging_testcase extends rlip_test {
             'targetstarttime' => 99,
             'starttime' => $starttime,
             'endtime' => $endtime,
-            'filesuccesses' => 0,
+            'filesuccesses' => 1,
             'filefailures' => 0,
             'storedsuccesses' => 0,
             'storedfailures' => 0,

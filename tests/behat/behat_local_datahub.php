@@ -20,11 +20,12 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
         require_once(__DIR__.'/../../../../lib/filelib.php');
         global $DB;
 
+        $externalserviceid = $DB->get_field('external_services', 'id', ['name' => 'RLDH Webservices'], MUST_EXIST);
         $record = [
             'token' => 'f4348c193310b549d8db493750eb4967',
             'tokentype' => '0',
             'userid' => 2,
-            'externalserviceid' => 2,
+            'externalserviceid' => $externalserviceid,
             'contextid' => 1,
             'creatorid' => 2,
             'validuntil' => 0,
@@ -250,9 +251,8 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
         $page = $this->getSession()->getPage();
         if (($chkbox = $page->find('xpath', "//input[@id='{$id}']"))) {
             $chkbox->check();
-            $chkbox->setValue(true);
         } else {
-            throw new \Exception("The expected '{$fullid}' checkbox was not found!");
+            throw new \Exception("The expected '{$id}' checkbox was not found!");
         }
     }
 
@@ -323,7 +323,6 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
         $enable = $page->find('xpath', "//input[@id='{$baseid}enabled']");
         if (!empty($enable)) {
             $enable->check();
-            $enable->setValue(true);
         }
         foreach ($dateobj as $comp => $val) {
             $this->selectOption("{$baseid}{$comp}", $val, true);
@@ -350,6 +349,7 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
             // Select schedule type: period | advanced (default)
             if ($datarow['type'] == 'period') {
                 $this->find_link('Basic Period Scheduling')->click();
+                $this->getSession()->wait(self::TIMEOUT * 1000, self::PAGE_READY_JS);
                 $page->fillField('idperiod', $datarow['params']);
             } else {
                 $params = json_decode($datarow['params']);
@@ -387,8 +387,8 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
                         $this->clickRadio('caldaystype', '0');
                     }
                     if (!empty($params->months)) {
-                        if ((int)$params->months < 1) {
-                            $params->month = date('n');
+                        if ($params->months == 'this' || (int)$params->months < 1) {
+                            $params->months = date('n');
                         }
                         foreach (explode(',', $params->months) as $month) {
                             $this->checkCheckbox("id_month_{$month}");
@@ -412,6 +412,71 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
             if (($cntlink = $this->find_link('Continue'))) {
                 $cntlink->click();
             }
+        }
+    }
+
+    /**
+     * @Given /^Task "(?P<arg1_string>(?:[^"]|\\")*)" (will|will not) execute in "([0-9\.]+)" minutes$/
+     */
+    public function taskwillexecute($arg1, $arg2, $minutes) {
+        global $DB;
+        $executetime = time() + $minutes * 60.0;
+        $task = $DB->get_record('local_datahub_schedule', ['plugin' => $arg1]);
+        if (empty($task)) {
+            throw new \Exception("$arg1 task not found.");
+        }
+        if (empty($task->nextruntime) || empty($task->lastruntime)) {
+            // Task will run at any time.
+            return;
+        }
+
+        // Variables for exception. "$arg1 task currently scheduled to execute at {$next} and it is currently {$current}, last run was {$last}\n".
+        $next = userdate($task->nextruntime, '%d/%m/%y %I:%M:%S').' '.($task->nextruntime);
+        $current = userdate(time(), '%d/%m/%y %I:%M:%S').' '.(time());
+        $last = userdate($task->lastruntime, '%d/%m/%y %I:%M:%S').' '.($task->lastruntime);
+
+
+        if ($arg2 == 'will not') {
+            $message = "Expecting $arg1 task to not execute";
+            $message .= " and it is currently scheduled to execute at {$next} and it is currently {$current}";
+            $message .= ", last run time {$last}";
+            if ($task->nextruntime < $executetime) {
+                throw new \Exception($message);
+            }
+        } else {
+            $message = "Expecting $arg1 task to execute";
+            $message .= " and it is currently scheduled to execute at {$next} and it is currently {$current}";
+            $message .= ", last run time {$last}";
+            if ($task->nextruntime > $executetime) {
+                throw new \Exception($message);
+            }
+        }
+    }
+
+    /**
+     * @Given /^I wait for task "(?P<arg1_string>(?:[^"]|\\")*)"$/
+     *
+     * Tasks can have a wait time of 0 to 10 minutes, this only waits if needed.
+     */
+    public function iwaitfortask($arg1) {
+        global $DB;
+        $executetime = time();
+        $task = $DB->get_record('local_datahub_schedule', ['plugin' => $arg1]);
+        if (empty($task)) {
+            throw new \Exception("$arg1 task not found.");
+        }
+
+        $diff = $task->nextruntime - $executetime;
+        $waittime = ($diff + 10) > 60 ? 60 : $diff + 10;
+
+        if ($task->nextruntime < $executetime) {
+            // Task will run at any time.
+            return;
+        }
+
+        if ($diff > 0) {
+            // Have a step for each 60 seconds. Or diff + 10 seconds, which ever is less.
+            sleep($waittime);
         }
     }
 
@@ -602,6 +667,9 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
     public function theFollowingMoodleUserProfileFieldsExist(TableNode $table) {
         global $DB;
         $data = $table->getHash();
+        if (empty($data)) {
+            throw new \Exception("Not data for the step \"the following Moodle user profile fields exist:\"");
+        }
         foreach ($data as $datarow) {
             $cat = new \stdClass;
             $cat->name = $datarow['category'];

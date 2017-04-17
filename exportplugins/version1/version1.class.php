@@ -149,31 +149,27 @@ class rlip_exportplugin_version1 extends rlip_exportplugin_base {
         //determine if we're in incremental or non-incremental mode
         $nonincremental = get_config('dhexport_version1', 'nonincremental');
 
-
         if (empty($nonincremental)) {
-            if($this->manual) {
-                //manual export incremental mode
-
-                //get string delta
+            if ($this->manual) {
+                // Manual export incremental mode.
+                // Get string delta.
                 $incrementaldelta = get_config('dhexport_version1', 'incrementaldelta');
-                //conver to number of seconds
+                // Convert to number of seconds.
                 $numsecs = rlip_time_string_to_offset($incrementaldelta);
-
+                $extra_params[] = time() - $numsecs;
+                $sql .= " AND gg.timemodified >= ?";
             } else if (!$this->manual) {
-                //scheduled export incremental mode
-
-                //calculate number of seconds
-                $numsecs = $targetstarttime - $lastruntime;
+                // Scheduled export incremental mode, load the last time job was excuted and run.
+                if (!empty($lastruntime)) {
+                    $sql .= " AND gg.timemodified >= ?";
+                    $extra_params[] = $lastruntime;
+                }
             }
-
-            $extra_params[] = time() - $numsecs;
-           //SQL and params
-            $sql .= " AND gg.timemodified >= ?";
         }
 
         $this->recordset = $DB->get_recordset_sql($sql, $extra_params);
 
-        //write out header
+        // Write out header.
         $this->fileplugin->write($columns);
     }
 

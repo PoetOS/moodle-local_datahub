@@ -4,6 +4,8 @@ Feature: version1 export field mapping
 
     Background:
         Given I log in as "admin"
+        And the following config values are set as admin:
+          | eliscore_etl | 0 | etl_disabled |
 
 
     # T33.25
@@ -52,6 +54,7 @@ Feature: version1 export field mapping
           | label | plugin | type | params |
           | dh1b | dhexport_version1 | period | 5m |
         Then a "local_datahub_schedule" record with '{"plugin":"dhexport_version1"}' "should" exist
+        Then Task "dhexport_version1" will execute in "0" minutes
         And I wait "0" minutes and run cron
         Then I should see "Running s:9:\"run_ipjob\";(ipjob_"
         And the Datahub "export_version1_scheduled_" log file should contain "Export file .* successfully created"

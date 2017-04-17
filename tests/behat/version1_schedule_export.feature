@@ -4,7 +4,8 @@ Feature: version1 export.
 
     Background:
         Given I log in as "admin"
-
+        And the following config values are set as admin:
+          | eliscore_etl | 0 | etl_disabled |
 
     # T33.15.1 ~ 2b
     Scenario: version1 basic/period schedule incremental export succeeds.
@@ -48,6 +49,17 @@ Feature: version1 export.
           | label | plugin | type | params |
           | dh1b | dhexport_version1 | period | 5m |
         Then a "local_datahub_schedule" record with '{"plugin":"dhexport_version1"}' "should" exist
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And Task "dhexport_version1" will execute in "0" minutes
         And I wait "0" minutes and run cron
         Then I should see "Running s:9:\"run_ipjob\";(ipjob_"
         And the Datahub "export_version1_scheduled_" log file should contain "Export file .* successfully created"
@@ -70,8 +82,18 @@ Feature: version1 export.
           | gradeitem |
           | gradeitem3 |
           | testcourse3 |
-        And I wait "60" seconds
-        And I wait "1" minutes and run cron
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And Task "dhexport_version1" will execute in "0" minutes
+        And I wait "0" minutes and run cron
         Then I should see "Running s:9:\"run_ipjob\";(ipjob_"
         And the Datahub "version1" export file "should" contain lines:
           | line |
@@ -122,11 +144,18 @@ Feature: version1 export.
           | label | plugin | type | params |
           | dh2c | dhexport_version1 | advanced | {"runs":3,"frequency":5,"units":"minute"} |
         Then a "local_datahub_schedule" record with '{"plugin":"dhexport_version1"}' "should" exist
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "1" minutes and run cron
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And Task "dhexport_version1" will execute in "0" minutes
+        And I wait "0" minutes and run cron
         Then I should see "Running s:9:\"run_ipjob\";(ipjob_"
         And the Datahub "export_version1_scheduled_" log file should contain "Export file .*csv successfully created"
         And the Datahub "version1" export file "should" contain lines:
@@ -134,11 +163,18 @@ Feature: version1 export.
           | "First Name","Last Name",Username,"User Idnumber","Course Idnumber","Start Date","End Date",Grade,Letter |
           | Test,User,testuser,,testcourse1,.*,.*,95.76000,A |
           | Test,User2,testuser2,,testcourse2,.*,.*,16.89000,F |
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "1" minutes and run cron
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And Task "dhexport_version1" will execute in "0" minutes
+        And I wait "0" minutes and run cron
         Then I should see "Running s:9:\"run_ipjob\";(ipjob_"
         And the Datahub "version1" export file "should" contain lines:
           | line |
@@ -182,13 +218,20 @@ Feature: version1 export.
         And I click on "Save changes" "button"
         And the following scheduled Datahub jobs exist:
           | label | plugin | type | params |
-          | dh3b | dhexport_version1 | advanced | {"startdate":"-3 days +5 minutes","recurrence":"calendar",enddate:"+2 days","weekdays":"1,2,3,4,5,6,7","months":"this"} |
+          | dh3b | dhexport_version1 | advanced | {"startdate":"-3 days +5 minutes","recurrence":"calendar","enddate":"+2 days","weekdays":"1,2,3,4,5,6,7","months":"this"} |
         Then a "local_datahub_schedule" record with '{"plugin":"dhexport_version1"}' "should" exist
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "60" seconds
-        And I wait "1" minutes and run cron
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And I wait for task "dhexport_version1"
+        And Task "dhexport_version1" will execute in "0" minutes
+        And I wait "0" minutes and run cron
         Then I should see "Running s:9:\"run_ipjob\";(ipjob_"
         And the Datahub "export_version1_scheduled_" log file should contain "Export file .* successfully created"
         And the Datahub "version1" export file "should" contain lines:
