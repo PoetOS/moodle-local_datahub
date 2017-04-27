@@ -1,0 +1,26 @@
+action,username,email,password,firstname,lastname,city,country
+create,testusername,test@user.com,Admin12345$,test,user,Waterloo,CA
+create,testusername001,001@user.com,Admin12345$,test,user 001,Waterloo,CA
+create,testusername002,002@user.com,Admin12345$,test,user 002,Waterloo,CA
+create,testusername003,003@user.com,Admin12345$,test,user 003,Waterloo,CA
+create,testusername004,004@user.com,Admin12345$,test,user 004,Waterloo,CA
+create,testusername005,005@user.com,Admin12345$,test,user 005,Waterloo,CA
+create,testusername006,006@user.com,Admin12345$,test,user 006,Waterloo,CA
+create,testusername007,007@user.com,Admin12345$,test,user 007,Waterloo,CA
+create,testusername008,008@user.com,Admin12345$,test,user 008,Waterloo,CA
+create,testusername009,009@user.com,Admin12345$,test,user 009,Waterloo,CA
+create,testusername010,010@user.com,Admin12345$,test,user 010,Waterloo,CA
+create,testusername011,011@user.com,Admin12345$,test,user 011,Waterloo,CA
+create,testusername012,012@user.com,Admin12345$,test,user 012,Waterloo,CA
+create,testusername013,013@user.com,Admin12345$,test,user 013,Waterloo,CA
+create,testusername014,014@user.com,Admin12345$,test,user 014,Waterloo,CA
+create,testusername015,015@user.com,Admin12345$,test,user 015,Waterloo,CA
+create,testusername016,016@user.com,Admin12345$,test,user 016,Waterloo,CA
+create,testusername017,017@user.com,Admin12345$,test,user 017,Waterloo,CA
+create,testusername018,018@user.com,Admin12345$,test,user 018,Waterloo,CA
+create,testusername019,019@user.com,Admin12345$,test,user 019,Waterloo,CA
+create,testusername020,020@user.com,Admin12345$,test,user 020,Waterloo,CA
+create,testusername021,021@user.com,Admin12345$,test,user 021,Waterloo,CA
+create,testusername022,022@user.com,Admin12345$,test,user 022,Waterloo,CA
+create,testusername023,023@user.com,Admin12345$,test,user 023,Waterloo,CA
+create,testusername024,024@user.com,Admin12345$,test,user 024,Waterloo,CA

@@ -47,9 +47,14 @@ $plugin_display = get_string('pluginname', $plugin);
 rlip_manualrun_page_setup($baseurl, $plugin_display);
 echo $OUTPUT->header();
 
-//add a warning message for all imports
-$import_warning = get_string('importwarning','local_datahub');
-echo $OUTPUT->box($import_warning);
+// Init a JS listener to check file size of uploads.
+$scheduling_url = $CFG->wwwroot.
+    '/local/datahub/schedulepage.php?plugin=dhimport_version1&action=list';
+$args = array($scheduling_url);
+$PAGE->requires->js_call_amd('local_datahub/manualrun', 'initialize', $args);
+
+// Add a warning message for all imports.
+echo write_manual_import_warning($scheduling_url);
 
 //need to get number of different files
 $instance = rlip_dataplugin_factory::factory($plugin);
@@ -83,3 +88,8 @@ $form->display();
 
 //footer
 echo $OUTPUT->footer();
+
+// Add a modal dialog for people who insist on uploading larger CSV files.
+// This modal needs to come below the footer so that z-index works correctly for
+// both the modal and the modal background.
+echo write_manual_import_modal();

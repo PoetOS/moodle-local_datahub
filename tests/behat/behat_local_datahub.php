@@ -92,6 +92,21 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
     }
 
     /**
+     * @Given /^I upload "([^"]*)" file to field "([^"]*)"$/
+     *
+     * A simpler version of iMakeADatahubManualImportWithFile().
+     * Necessary in order to check JavaScript-initiated UX feedback
+     * before file submission.
+     *
+     * @param string $file File name
+     * @param string $field File upload field to target
+     */
+    public function i_upload_file_to_field($file, $field) {
+        $path = __DIR__.'/fixtures/'.$file;
+        $this->upload_file_to_filemanager($path, $field, new TableNode(array()), false);
+    }
+
+    /**
      * Uploads a file to filemanager
      * @see: repository/upload/tests/behat/behat_repository_upload.php
      *
@@ -602,5 +617,12 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
             $rec->param1 = str_replace(',', "\n", $datarow['options']);
             $DB->insert_record('user_info_field', $rec);
         }
+    }
+
+    /**
+     * @Given /^I navigate to "([^"]*)"$/
+     */
+    public function i_navigate_to($path) {
+        $this->getSession()->visit($this->locate_path($path));
     }
 }

@@ -1,4 +1,4 @@
-@local @local_datahub @javascript
+@local @local_datahub @javascript @_file_upload
 
 Feature: Import a version1 file.
 
@@ -46,3 +46,11 @@ Feature: Import a version1 file.
     #     Given I make a Datahub "version1" manual "course" import with file "delete_course_t33_6.csv"
     #     Then I should see "All lines from import file delete_course_t33_6.csv were successfully processed. (2 of 2)"
 
+    @datahub_manualimport_warn @javascript @_file_upload
+    Scenario: User is shown a warning about large files in the manual import interface.
+        Given I navigate to "/local/datahub/importplugins/manualrun.php?plugin=dhimport_version1"
+        And I upload "200users.csv" file to field "User file"
+        Then "#manual_import_modal" "css_element" should be visible
+        And I click on "Close" "button"
+        And I upload "25users.csv" file to field "User file"
+        Then "#manual_import_modal" "css_element" should not be visible

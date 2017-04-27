@@ -1352,3 +1352,81 @@ function datahub_fullname($user, $override = false) {
     return fullname($user, $override);
 }
 
+/**
+ * Deternmine if local_elisprogram is available.
+ *
+ * @param string $version the minimum version required.
+ * @return bool true if local_elisprogram is installed and at correct version.
+ */
+function local_datahub_elisprogram_available($version = 0) {
+    global $CFG, $DB;
+    return file_exists($CFG->dirroot.'/local/elisprogram/lib/setup.php') &&
+            $DB->record_exists_select('config_plugins',
+                    'plugin = "local_elisprogram" AND name = "version" AND value >= ?' , [$version]);
+}
+
+function write_manual_import_warning($scheduling_url) {
+    global $CFG;
+    $import_warning = get_string('importwarning', 'local_datahub');
+    $confirm_btn_txt = get_string('importwarningconfirm', 'local_datahub');
+    $manual_alert = '';
+    $manual_alert .= html_writer::start_tag('div', array('id' => 'manual_import_warning', 'class' => 'alert alert-danger', 'role' => 'alert'));
+    $manual_alert .= $import_warning;
+    $manual_alert .= html_writer::tag('a', $confirm_btn_txt, array(
+        'id' => 'manual_import_confirm',
+        'class' => 'btn-default btn manual_import_confirm',
+        'href' => $scheduling_url));
+    $manual_alert .= html_writer::end_tag('div');
+    return $manual_alert;
+}
+
+function write_manual_import_modal() {
+    $modal_warning = get_string('importwarning', 'local_datahub');
+    $confirm_btn_txt = get_string('importwarningconfirm', 'local_datahub');
+    $modal = html_writer::start_tag('div', array(
+        'id' => 'manual_import_modal',
+        'class' => 'modal fade',
+        'role' => 'dialog',
+        'aria-labelledby' => "manual_import_modal_label"));
+    $modal .= html_writer::start_tag('div', array(
+        'class' => 'modal-dialog',
+        'role' => 'document'));
+    $modal .= html_writer::start_tag('div', array(
+        'class' => 'modal-content'));
+    // Modal header.
+    $modal .= html_writer::start_tag('div', array(
+        'class' => 'modal-header'));
+    // Close button.
+    $modal .= html_writer::start_tag('button', array(
+        'type' => 'button',
+        'class' => 'close',
+        'data-dismiss' => 'modal',
+        'aria-label' => 'Close'));
+    $modal .= html_writer::tag('span', '&times', array('aria-hidden' => 'true')); // Close 'x'
+    $modal .= html_writer::end_tag('button'); // .close
+    $modal .= html_writer::tag('h4', get_string('importwarningheader', 'local_datahub'), array(
+        'class' => 'modal-title',
+        'id' => 'manual_import_modal_label'));
+    $modal .= html_writer::end_tag('div'); // .modal-header
+    // Modal body.
+    $modal .= html_writer::start_tag('div', array(
+        'class' => 'modal-body'));
+    $modal .= get_string('importwarningcontent', 'local_datahub');
+    $modal .= html_writer::end_tag('div'); // .modal-body
+    // Modal footer.
+    $modal .= html_writer::start_tag('div', array(
+        'class' => 'modal-footer'));
+    $modal .= html_writer::tag('button', 'Close', array(
+        'type' => 'button',
+        'class' => 'btn btn-default',
+        'data-dismiss' => 'modal'));
+    $modal .= html_writer::tag('button', $confirm_btn_txt, array(
+        'id' => 'modal_manual_import_confirm',
+        'class' => 'btn btn-primary',
+        'type' => 'button'));
+    $modal .= html_writer::end_tag('div'); // .modal-footer
+    $modal .= html_writer::end_tag('div'); // .modal-content
+    $modal .= html_writer::end_tag('div'); // .modal-dialog
+    $modal .= html_writer::end_tag('div'); // #manual_import_modal
+    return $modal;
+}
