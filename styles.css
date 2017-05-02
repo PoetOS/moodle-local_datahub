@@ -25,3 +25,7 @@
 #manual_import_modal.modal.fade.in {
     top: 30%;
 }
+
+.modal-footer button {
+    margin-left: 3px;
+}

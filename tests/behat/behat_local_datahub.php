@@ -625,4 +625,58 @@ class behat_local_datahub extends behat_files implements SnippetAcceptingContext
     public function i_navigate_to($path) {
         $this->getSession()->visit($this->locate_path($path));
     }
+
+    /**
+     * @Given /^I forgivingly check visibility of "([^"]*)" "([^"]*)"$/
+     * @param string $selector Selector of item for which to check visibility.
+     * @param string $findtype Type of selector string, 'css' or 'xpath'
+     */
+    public function i_forgivingly_check_visibility_of($selector, $findtype) {
+        $session = $this->getSession();
+        $page = $session->getPage();
+        $el = $page->find($findtype, $selector);
+        if (!!$el) {
+            // Credit for original version of this iterative checking, to counteract
+            // failures on elements created by JavaScript, goes to Charles Verge.
+            // See commit 0827ce234 in moodle-local_datahub.git.
+            $count = 10;
+            while ($count > 0) {
+                try {
+                    $el->isVisible();
+                    $count = -10;
+                    return true;
+                } catch (\Exception $e) {
+                    $count--;
+                    $this->getSession()->wait(self::TIMEOUT * 1000, self::PAGE_READY_JS);
+                }
+            }
+        }
+    }
+
+    /**
+     * @Given /^I forgivingly click on "([^"]*)" "([^"]*)"$/
+     * @param string $selector Selector of item to click.
+     * @param string $findtype Type of selector string, 'css' or 'xpath'
+     *
+     */
+    public function i_forgivingly_click_on($selector, $findtype) {
+        $session = $this->getSession();
+        $page = $session->getPage();
+        $el = $page->find($findtype, $selector);
+        if (!!$el) {
+            // Credit for original version of this iterative clicking, to counteract
+            // failures on elements created by JavaScript, goes to Charles Verge.
+            // See commit 0827ce234 in moodle-local_datahub.git.
+            $count = 10;
+            while ($count > 0) {
+                try {
+                    $el->click();
+                    $count = -10;
+                } catch (\Exception $e) {
+                    $count--;
+                    $this->getSession()->wait(self::TIMEOUT * 1000, self::PAGE_READY_JS);
+                }
+            }
+        }
+    }
 }

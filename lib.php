@@ -1370,7 +1370,10 @@ function write_manual_import_warning($scheduling_url) {
     $import_warning = get_string('importwarning', 'local_datahub');
     $confirm_btn_txt = get_string('importwarningconfirm', 'local_datahub');
     $manual_alert = '';
-    $manual_alert .= html_writer::start_tag('div', array('id' => 'manual_import_warning', 'class' => 'alert alert-danger', 'role' => 'alert'));
+    $manual_alert .= html_writer::start_tag('div', array(
+        'id' => 'manual_import_warning',
+        'class' => 'alert alert-danger',
+        'role' => 'alert'));
     $manual_alert .= $import_warning;
     $manual_alert .= html_writer::tag('a', $confirm_btn_txt, array(
         'id' => 'manual_import_confirm',

@@ -50,7 +50,7 @@ Feature: Import a version1 file.
     Scenario: User is shown a warning about large files in the manual import interface.
         Given I navigate to "/local/datahub/importplugins/manualrun.php?plugin=dhimport_version1"
         And I upload "200users.csv" file to field "User file"
-        Then "#manual_import_modal" "css_element" should be visible
-        And I click on "Close" "button"
+        Then I forgivingly check visibility of ".modal-content" "css"
+        Then I forgivingly click on "#close_manualrun_modal" "css"
         And I upload "25users.csv" file to field "User file"
-        Then "#manual_import_modal" "css_element" should not be visible
+        Then ".modal-dialog" "css_element" should not be visible

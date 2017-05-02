@@ -17,11 +17,13 @@
  * @param Function log Moodle core JS logging utility
  * @return Function initialise Inits for horizontal scroll and filtering functionality.
  **/
-define(['jquery', 'local_datahub/papaparse', 'theme_bootstrapbase/bootstrap', 'core/log'],
-        function($, Papa, bootstrap, log) {
+define(['jquery', 'local_datahub/papaparse', 'core/templates', 'core/modal_factory', 'core/log', 'core/str'],
+        function($, Papa, Templates, ModalFactory, log, str) {
 
     "use strict"; // jshint ;_;
     var scheduling_url = '';
+    var mod_strings = [];
+    var confirm_modal;
 
     /**
      * Launch a Bootstrap modal to warn the user about the
@@ -30,9 +32,38 @@ define(['jquery', 'local_datahub/papaparse', 'theme_bootstrapbase/bootstrap', 'c
      */
     function launch_warning() {
         Y.log('launch_warning()');
-        $('#manual_import_modal').modal({show: true, backdrop: true});
-        $('#modal_manual_import_confirm').click(function(e) {
+        confirm_modal.show();
+        $('#confirm_manualrun_modal').click(function(e) {
+            Y.log('click confirm');
             window.location.href = scheduling_url;
+        });
+        $('#close_manualrun_modal').click(function(e) {
+            Y.log('click close');
+            confirm_modal.hide();
+            $('#close_manualrun_modal, #confirm_manualrun_modal').unbind('click');
+        });
+    }
+
+    /**
+     * Build Bootstrap modal for reuse when large files are added.
+     * @return none
+     */
+    function build_modal() {
+        // Build modal for display if csv too large.
+        var trigger = $('#create_modal');
+        var footerHTML = '<button type="button" class="btn btn-secondary" id="close_manualrun_modal">Close</button>' +
+                         '<button type="button" class="btn btn-primary" id="confirm_manualrun_modal">' +
+                            mod_strings[2] +
+                         '</button>';
+        ModalFactory.create({
+            title: mod_strings[0],
+            body: '<p>' + mod_strings[1] + '</p>',
+            footer: footerHTML,
+        }, trigger)
+        .done(function(modal) {
+            // Do what you want with your new modal.
+            Y.log('modal created');
+            confirm_modal = modal;
         });
     }
 
@@ -44,8 +75,7 @@ define(['jquery', 'local_datahub/papaparse', 'theme_bootstrapbase/bootstrap', 'c
      */
     function check_csv(targetid) {
         // Build a path to fetch the CSV string from MDL drafts.
-        var parentid = 'fitem_' + targetid;
-        var path = $('#' + parentid + ' .filepicker-filename a');
+        var path = $('#' + targetid).parents('.fitem').find('.filepicker-filename a');
         path = $(path).attr('href');
         // Make an AJAX request.
         var csv_data;
@@ -64,6 +94,7 @@ define(['jquery', 'local_datahub/papaparse', 'theme_bootstrapbase/bootstrap', 'c
                 to_parse = result.responseText;
                 parsed_data = Papa.parse(to_parse);
                 var length = parsed_data.data.length - 2;
+                Y.log('length is ' + length);
                 if (length > 50) {
                     launch_warning();
                 }
@@ -95,6 +126,15 @@ define(['jquery', 'local_datahub/papaparse', 'theme_bootstrapbase/bootstrap', 'c
                 Y.log('manualrun.js init.');
                 Y.log(schedulingurl);
                 scheduling_url = schedulingurl;
+                str.get_strings([
+                        {'key': 'importwarningheader', component: 'local_datahub'},
+                        {'key': 'importwarningcontent', component: 'local_datahub'},
+                        {'key': 'importwarningconfirm', component: 'local_datahub'}
+                    ]).done(function(s) {
+                        mod_strings = s;
+                        console.log(s);
+                        build_modal();
+                    }).fail(console.log('Loading of strings failed.'));
                 bind_events();
             });
         }
