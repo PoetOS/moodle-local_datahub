@@ -34,8 +34,8 @@ require_once(dirname(__FILE__).'/lib.php');
 // Start of "scheduling" section
 $settings->add(new admin_setting_heading('dhexport_version1/scheduling', get_string('exportfilesheading', 'dhexport_version1'), ''));
 
-// Export filename settings
-$settings->add(new admin_setting_configtext('dhexport_version1/export_path', get_string('export_path', 'dhexport_version1'),
+// Export filename settings.
+$settings->add(new \local_datahub\settings\admin_setting_path('dhexport_version1/export_path', get_string('export_path', 'dhexport_version1'),
         get_string('config_export_path', 'dhexport_version1'), '/datahub/dhexport_version1'));
 
 $settings->add(new admin_setting_configtext('dhexport_version1/export_file', get_string('export_file', 'dhexport_version1'),
@@ -48,8 +48,8 @@ $settings->add(new admin_setting_configcheckbox('dhexport_version1/export_file_t
 // Start of "logging" section
 $settings->add(new admin_setting_heading('dhexport_version1/logging', get_string('logging', 'dhexport_version1'), ''));
 
-// Log file location
-$settings->add(new admin_setting_configtext('dhexport_version1/logfilelocation', get_string('logfilelocation', 'dhexport_version1'),
+// Log file location.
+$settings->add(new \local_datahub\settings\admin_setting_path('dhexport_version1/logfilelocation', get_string('logfilelocation', 'dhexport_version1'),
         get_string('configlogfilelocation', 'dhexport_version1'), RLIP_DEFAULT_LOG_PATH));
 
 // Email notification

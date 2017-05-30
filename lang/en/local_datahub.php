@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['automatic'] = 'Automatic';
 $string['confirm_delete_ipjob'] = 'Are you sure to delete DH job #{$a}?';
 $string['configdisableincron'] = 'If enabled, this setting disables this plugin from running in the Moodle cron. Use this setting when running imports & exports via a separate system-level cron.';
+$string['createdirectoryerror'] = 'Error creating directory: {$a}';
 $string['datahub:addinstance'] = 'Add a DataHub instance';
 $string['datahub_settings'] = 'Datahub Settings';
 $string['dateformat'] = 'M/d/Y';
@@ -41,6 +42,7 @@ $string['exportinvalidlogfilepath'] = 'Log file access failed during export due 
 $string['ext_cron_usage'] = 'requires 4 parameters: <plugin> <userid> <targetstarttime> <lastruntime> - only got {$a} parameter(s).';
 $string['file_timestamp'] = '%b_%d_%Y_%H%M%S';
 $string['go'] = 'Go';
+$string['illegaldirectoryerror'] = 'Error: path cannot contain \'..\': {$a}';
 $string['import'] = 'Import';
 $string['importexceedstimelimit'] = 'Import processing of entity \'{$a->entity}\' partially processed due to time restrictions. Import will continue at next cron.';
 $string['importexceedstimelimit_b'] = 'Import processing of entity \'{$a->entity}\' partially processed due to time restrictions. Processed {$a->recordsprocessed} of {$a->totalrecords} total records. Import will continue at next cron.';

@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once(dirname(__FILE__).'/lib.php');
+
 // Start of "data handling" section, along with link for configuring mapping
 $url = $CFG->wwwroot.'/local/datahub/importplugins/version1/config_fields.php';
 $attributes = array('href' => $url, 'target' => '_blank');
@@ -49,8 +51,8 @@ $settings->add(new admin_setting_configcheckbox('dhimport_version1/createorupdat
 // Start of "scheduling" section
 $settings->add(new admin_setting_heading('dhimport_version1/scheduling', get_string('importfilesheading', 'dhimport_version1'), ''));
 
-// Setting for schedule_files_path
-$settings->add(new admin_setting_configtext('dhimport_version1/schedule_files_path', get_string('import_files_path', 'dhimport_version1'),
+// Setting for schedule_files_path.
+$settings->add(new \local_datahub\settings\admin_setting_path('dhimport_version1/schedule_files_path', get_string('import_files_path', 'dhimport_version1'),
         get_string('config_schedule_files_path', 'dhimport_version1'), '/datahub/dhimport_version1'));
 
 // Setting for user_schedule_file
@@ -68,8 +70,8 @@ $settings->add(new admin_setting_configtext('dhimport_version1/enrolment_schedul
 // Start of "logging" section
 $settings->add(new admin_setting_heading('dhimport_version1/logging', get_string('logging', 'dhimport_version1'), ''));
 
-// Log file location
-$settings->add(new admin_setting_configtext('dhimport_version1/logfilelocation', get_string('logfilelocation', 'dhimport_version1'),
+// Log file location.
+$settings->add(new \local_datahub\settings\admin_setting_path('dhimport_version1/logfilelocation', get_string('logfilelocation', 'dhimport_version1'),
         get_string('configlogfilelocation', 'dhimport_version1'), RLIP_DEFAULT_LOG_PATH));
 
 // Email notification

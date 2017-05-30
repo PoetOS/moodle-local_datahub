@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2016120503;
+$plugin->version = 2016120504;
 $plugin->requires = 2016120501;
 $plugin->component = 'local_datahub';
 $plugin->maturity = MATURITY_STABLE;
