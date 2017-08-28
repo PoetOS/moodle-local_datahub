@@ -15,15 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    dhimport_version2ui
+ *
+ * @package    dhimport_version2
  * @author     Remote-Learner.net Inc
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright  (C) 2017 Remote Learner.net Inc http://www.remote-learner.net
  */
 
-defined('MOODLE_INTERNAL') || die();
+$string['pluginname'] = 'Version 2 Import';
+$string['version2header'] = 'Data Hub Version 2';
 
-$plugin->version = 2016120500;
-$plugin->release = '3.2.0.0';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->component = 'dhimport_version2ui';
+$string['version2importtab'] = 'Import';
+$string['version2queuetab'] = 'Queue';
+$string['version2settingstab'] = 'Settings';
