@@ -29,7 +29,7 @@ require_once($CFG->dirroot.'/local/datahub/lib.php');
  * Class for storing import / export progress and logging end result to the
  * database
  */
-abstract class rlip_dblogger {
+abstract class rlip_dblogger implements \local_datahub\dblogger {
     //this plugin that doing the work
     var $plugin = '';
     //the user running the task

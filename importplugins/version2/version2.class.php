@@ -21,9 +21,10 @@
  * @copyright (C) 2017 Remote Learner.net Inc http://www.remote-learner.net
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot.'/local/datahub/lib/rlip_importplugin.class.php');
 
-$plugin->version = 2016120501;
-$plugin->release = '3.2.0.0';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->component = 'dhimport_version2';
+/**
+ * Original Moodle-only import
+ */
+class rlip_importplugin_version2 extends \dhimport_version2\importplugin {
+}

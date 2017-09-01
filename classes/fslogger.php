@@ -21,9 +21,11 @@
  * @copyright (C) 2017 Remote Learner.net Inc http://www.remote-learner.net
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_datahub;
 
-$plugin->version = 2016120501;
-$plugin->release = '3.2.0.0';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->component = 'dhimport_version2';
+/**
+ * Public interface for a datahub filesystem logger.
+ */
+interface fslogger {
+
+}

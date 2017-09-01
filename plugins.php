@@ -83,9 +83,9 @@ foreach ($plugintypes as $plugintype) {
         $attributes = array('href' => $url);
         $sched_tag = html_writer::tag('a', get_string('managesched', 'local_datahub'), $attributes);
 
-        //manual run link
-        $url = "{$directory}/manualrun.php?plugin={$plugintype}_{$name}";
-        $attributes = array('href' => $url);
+        // Manual run link.
+        $url = $instance->get_manualrun_url();
+        $attributes = ['href' => $url];
         $run_tag = html_writer::tag('a', get_string('go', 'local_datahub'), $attributes);
 
         //combine into row data

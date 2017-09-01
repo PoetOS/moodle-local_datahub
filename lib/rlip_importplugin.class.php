@@ -103,46 +103,10 @@ abstract class rlip_importprovider {
 
 /**
  * Base class for Integration Point import plugins
+ *
+ * This is the *legacy* base class for anything pre version2.
  */
-abstract class rlip_importplugin_base extends rlip_dataplugin {
-    var $provider = NULL;
-    var $dblogger = NULL;
-    //file-system logger object
-    var $fslogger = NULL;
-    //track which import line we are on
-    var $linenumber = 0;
-    //type of import, true if manual
-    var $manual = false;
-    //stores entity type
-    var $tmp_entity = '';
-    //stores import actions
-    var $tmp_import_actions = array();
-
-    /**
-     * Import plugin constructor
-     *
-     * @param object $provider The import file provider that will be used to
-     *                         obtain any applicable import files
-     * @param boolean $manual  Set to true if a manual run
-     */
-    function __construct($provider = NULL, $manual = false) {
-        global $CFG;
-        require_once($CFG->dirroot.'/local/datahub/lib/rlip_fileplugin.class.php');
-
-        if ($provider !== NULL) {
-            //note: provider is not set if only using plugin_supports
-
-            //convert class name to plugin name
-            $class = get_class($this);
-            $plugin = str_replace('rlip_importplugin_', 'dhimport_', $class);
-
-            $this->provider = $provider;
-            $this->dblogger = $this->provider->get_dblogger();
-            $this->dblogger->set_plugin($plugin);
-            $this->manual = $manual;
-        }
-    }
-
+abstract class rlip_importplugin_base extends \local_datahub\importplugin_base {
     /**
      * Determines whether the current plugin supports the supplied feature
      *
@@ -165,6 +129,32 @@ abstract class rlip_importplugin_base extends rlip_dataplugin {
         }
 
         return false;
+    }
+
+    /**
+     * Get the current import plugin.
+     *
+     * @return string The current plugin component name (i.e. "dhimport_version1").
+     */
+    protected function get_plugin() {
+        // Convert class name to plugin name.
+        $class = get_class($this);
+        $plugin = str_replace('rlip_importplugin_', 'dhimport_', $class);
+        return $plugin;
+    }
+
+    /**
+     * Get the URL for a manual run.
+     *
+     * @return string The URL for a manual run.
+     */
+    public function get_manualrun_url() {
+        global $CFG;
+        $directories = core_component::get_plugin_types();
+        $directory = $directories['dhimport'];
+        $directory = str_replace($CFG->dirroot, $CFG->wwwroot, $directory);
+        list($prefix, $plugintype, $pluginname) = explode('_', get_called_class());
+        return $directory.'/manualrun.php?plugin=dhimport_'.$pluginname;
     }
 
     /**
@@ -226,7 +216,7 @@ abstract class rlip_importplugin_base extends rlip_dataplugin {
      *
      * @return array An array of entity types
      */
-    function get_import_entities() {
+    public function get_import_entities() {
         $result = array();
         $methods = get_class_methods($this);
 
@@ -287,31 +277,6 @@ abstract class rlip_importplugin_base extends rlip_dataplugin {
     }
 
     /**
-     * Re-indexes an import record based on the import header
-     *
-     * @param array $header Field names from the input file header
-     * @param array $record One record of import data
-     *
-     * @return object An object with the supplied data, indexed by the columns
-     *                names
-     */
-    function index_record($header, $record) {
-        $result = new stdClass;
-
-        //todo: add more error checking
-
-        //iterate through header fields
-        foreach ($header as $index => $shortname) {
-            //look up the value from the import data
-            $value = $record[$index];
-            //index the result based on the header shortname
-            $result->$shortname = $value;
-        }
-
-        return $result;
-    }
-
-    /**
      * Obtains a list of required fields that are missing from the supplied
      * import record (helper method)
      *
@@ -368,10 +333,9 @@ abstract class rlip_importplugin_base extends rlip_dataplugin {
      * @param string $entity Type of entity, such as 'user'
      * @param array $header The list of supplied header columns
      * @param string $filename The name of the import file, to use in logging
-     * @return boolean true if the action column is correctly specified,
-     *                 otherwise false
+     * @return bool True if the action column is correctly specified, otherwise false
      */
-    function check_action_header($entity, $header, $filename) {
+    protected function check_action_header($entity, $header, $filename) {
         if (!in_array('action', $header)) {
             //action column not specified
             $message = "Import file {$filename} was not processed because it is missing the ".
@@ -390,10 +354,9 @@ abstract class rlip_importplugin_base extends rlip_dataplugin {
      * @param string $entity Type of entity, such as 'user'
      * @param array $header The list of supplied header columns
      * @param string $filename The name of the import file, to use in logging
-     * @return boolean true if the action column is correctly specified,
-     *                 otherwise false
+     * @return bool True if the action column is correctly specified, otherwise false.
      */
-    function check_required_headers($entity, $header, $filename) {
+    protected function check_required_headers($entity, $header, $filename) {
         //get list of required fields
         //note: for now, assuming that the delete action is available for
         //all entity types and requires the bare minimum in terms of fields
@@ -592,15 +555,14 @@ abstract class rlip_importplugin_base extends rlip_dataplugin {
     }
 
     /**
-     * Entry point for processing a single record
+     * Entry point for processing a single record.
      *
-     * @param string $entity The type of entity
-     * @param object $record One record of import data
-     * @param string $filename Import file name to user for logging
-     *
-     * @return boolean true on success, otherwise false
+     * @param string $entity The type of entity.
+     * @param object $record One record of import data.
+     * @param string $filename Import file name to user for logging.
+     * @return bool True on success, otherwise false.
      */
-    function process_record($entity, $record, $filename) {
+    protected function process_record($entity, $record, $filename) {
         //increment which record we're on
         $this->linenumber++;
 
@@ -619,317 +581,11 @@ abstract class rlip_importplugin_base extends rlip_dataplugin {
     }
 
     /**
-     * Hook run after a file header is read
+     * Specifies the UI labels for the various import files supported by this plugin.
      *
-     * @param string $entity   The type of entity
-     * @param array  $header   The header record
-     * @param string $filename ?
+     * @return array The string labels for files.
      */
-    function header_read_hook($entity, $header, $filename) {
-        //by default, nothing to do
-    }
-
-    /**
-     * Entry point for processing an import file
-     *
-     * @param string $entity       The type of entity
-     * @param int    $maxruntime   The max time in seconds to complete import
-     *                             default: 0 => unlimited time
-     * @param object $state        Previous ran state data to continue from
-     * @return mixed object        Current state of import processing,
-     *                             null for success, false if file is skipped.
-     */
-    function process_import_file($entity, $maxruntime = 0, $state = null) {
-        global $CFG;
-
-        if (!$state) {
-            $state = new stdClass;
-        }
-
-        $starttime = time();
-
-        //track the start time as the current time
-        $this->dblogger->set_starttime($starttime);
-
-        //fetch a file plugin for the current file
-        $fileplugin = $this->provider->get_import_file($entity);
-        if ($fileplugin === false) {
-            return false; // no error cause we're just gonna skip this entity
-        }
-
-        // Must count import files lines in case of error and scan for acceptable character encoding.
-        $failureexit = false;
-        $filelines = 0;
-        $fileplugin->open(RLIP_FILE_READ);
-        $filename = $fileplugin->get_filename();
-        $encodingok = true;
-        $firstbadline = 0;
-        while ($lineitems = $fileplugin->read()) {
-            ++$filelines;
-            if ($encodingok) {
-                foreach ($lineitems as $item) {
-                    if (!mb_check_encoding($item, 'utf-8')) {
-                        $encodingok = false;
-                        $firstbadline = $filelines;
-                    }
-                }
-            }
-        }
-
-        //track the total number of records to process
-        //todo: find a way to get this number more generically, e.g.
-        //for non-flat formats like CSV
-        $this->dblogger->set_totalrecords($filelines - 1);
-        $fileplugin->close();
-
-        //set up fslogger with this starttime for this entity
-        $this->fslogger = $this->provider->get_fslogger($this->dblogger->plugin, $entity, $this->manual, $starttime);
-
-        $this->dblogger->set_log_path($this->provider->get_log_path());
-        $this->dblogger->set_entity_type($entity);
-        // ELIS-8255: set endtime as now, to avoid endtime = epoch + timezone
-        $this->dblogger->set_endtime(time());
-
-        // Handle unacceptable character encoding.
-        if (!$encodingok) {
-            // Unacceptable character encoding found, so we can't continue.
-            $message = "Import file {$filename} was not processed because it contains unacceptable character encoding. ";
-            $message .= "Please fix (convert to UTF-8) the import file and re-upload it.";
-            if ($this->fslogger) {
-                $this->fslogger->log_failure($message, 0, $filename, $firstbadline);
-            }
-            $this->dblogger->signal_invalid_encoding($message);
-            $this->dblogger->flush($filename);
-            $failureexit = true;
-        }
-
-        if ($filelines == 1) {
-            // header but no records or lines end with CR only
-            if ($this->fslogger) {
-                $message = 'Could not read data, make sure import file lines end with LF (linefeed) character: 0x0A';
-                $this->fslogger->log_failure($message, 0, $filename, 1);
-            }
-            $this->dblogger->track_success(false, true);
-            $this->dblogger->flush($filename);
-            $failureexit = true;
-        }
-
-        if ($failureexit) {
-            if (!$this->manual) {
-                // Delete processed import file.
-                if (!$fileplugin->delete()) {
-                    $message = "Error when attempting to delete temporary file '".$filename."'";
-                    mtrace($message);
-                    $this->fslogger->log_failure($message, 0, $filename);
-                }
-            }
-            return null;
-        }
-
-        $fileplugin->open(RLIP_FILE_READ);
-        if (!$header = $fileplugin->read()) {
-            return false; // no error cause we're just gonna skip this entity
-        }
-        //initialize line number
-        $this->linenumber = 0;
-
-        //header read, so increment line number
-        $this->linenumber++;
-
-        //check that the file directory is valid
-        $filepath = get_config($this->dblogger->plugin, 'logfilelocation');
-        if (!$writable = is_writable($CFG->dataroot.'/'.$filepath)) {
-            //invalid folder specified for the logfile
-            //log this message...
-            $this->dblogger->set_endtime(time());
-            $this->fslogger->set_logfile_status(false);
-            $this->dblogger->set_logfile_status(false);
-            $this->dblogger->flush($filename);
-            return null;
-        } else {
-            $this->fslogger->set_logfile_status(true);
-            $this->dblogger->set_logfile_status(true);
-        }
-
-        $this->header_read_hook($entity, $header, $fileplugin->get_filename());
-
-        if (!$this->check_action_header($entity, $header, $filename)) {
-            //action field not specified in the header, so we can't continue
-            $this->dblogger->set_endtime(time());
-            $this->dblogger->flush($filename);
-            return null;
-        }
-
-        if (!$this->check_required_headers($entity, $header, $filename)) {
-            //a required field is missing from the header, so we can't continue
-            $this->dblogger->set_endtime(time());
-            $this->dblogger->flush($filename);
-            return null;
-        }
-
-        //main processing loop
-        while ($record = $fileplugin->read()) {
-            if (isset($state->linenumber)) {
-                if ($this->linenumber < $state->linenumber) {
-                    $this->linenumber++;
-                    continue;
-                }
-                unset($state->linenumber);
-            }
-            // check if timelimit excceeded
-            if ($maxruntime && (time() - $starttime) > $maxruntime) {
-                $this->dblogger->signal_maxruntime_exceeded();
-                $state->result = false;
-                $state->entity = $entity;
-                $state->filelines = $filelines;
-                $state->linenumber = $this->linenumber;
-                // clean-up before exiting ...
-                $fileplugin->close();
-                $this->dblogger->set_endtime(time());
-                //flush db log record
-                $this->dblogger->flush($filename);
-                return $state;
-            }
-            //index the import record with the appropriate keys
-            $record = $this->index_record($header, $record);
-
-            //track return value
-            //todo: change second parameter when in the cron
-            $result = $this->process_record($entity, $record, $filename);
-
-            $this->dblogger->track_success($result, true);
-        }
-
-        $fileplugin->close();
-
-        //track the end time as the current time
-        $this->dblogger->set_endtime(time());
-
-        //flush db log record
-        //$filename = $fileplugin->get_filename();
-        $this->dblogger->flush($filename);
-
-        if (!$this->manual) {
-            // Delete processed import file.
-            if (!$fileplugin->delete()) {
-                $message = "Error when attempting to delete temporary file '".$filename."'";
-                mtrace($message);
-                $this->fslogger->log_failure($message, 0, $filename);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Mainline for running the import
-     *
-     * @param int $targetstarttime The timestamp representing the theoretical
-     *                             time when this task was meant to be run
-     * @param int $lastruntime     The last time the export was run
-     *                             (N/A for import)
-     * @param int $maxruntime      The max time in seconds to complete import
-     *                             default: 0 => unlimited time
-     * @param object $state        Previous ran state data to continue from
-     *
-     * @return object              State data to pass back on re-entry,
-     *                             null on success!
-     *         ->result            false on error, i.e. time limit exceeded.
-     */
-    function run($targetstarttime = 0, $lastruntime = 0, $maxruntime = 0, $state = null) {
-        //track the provided target start time
-        $this->dblogger->set_targetstarttime($targetstarttime);
-
-        if (!$state) {
-            $state = new stdClass;
-        }
-
-        //determine the entities that represent the different files to process
-        $entities = $this->get_import_entities();
-
-        //track whether some file was processed
-        $file_processed = false;
-
-        //process each import file
-        foreach ($entities as $entity) {
-            $starttime = time();
-            if (isset($state->entity)) {
-                if ($entity != $state->entity) {
-                    continue;
-                }
-                unset($state->entity);
-            }
-
-            $result = $this->process_import_file($entity, $maxruntime, $state);
-
-            //flag a file having been processed if method was successful
-            $file_processed = $file_processed || ($result === NULL);
-
-            if ($result !== NULL && $result !== false) {
-                if ($this->fslogger) {
-                    //todo: look at a better way to do this for non-flat
-                    //file formats like XML
-                    $a = new stdClass;
-                    $a->entity = $result->entity;
-                    $a->recordsprocessed = $result->linenumber - 1;
-                    $a->totalrecords = $result->filelines - 1;
-                    $strid = 'importexceedstimelimit_b';
-                    if ($this->manual) {
-                        $strid = 'manualimportexceedstimelimit_b';
-                    }
-                    $msg = get_string($strid, 'local_datahub', $a);
-                    $this->fslogger->log_failure($msg);
-                }
-                return $result;
-            }
-            if ($maxruntime) {
-                $usedtime = time() - $starttime;
-
-                //NOTE: if no file was processed, we should keep running
-                //this will never hapen in practise but is helpful in unit testing
-                if ($usedtime < $maxruntime || !$file_processed) {
-                    $maxruntime -= $usedtime;
-                } else if (($nextentity = next($entities)) !== false) {
-                    // import time limit already exceeded, log & exit
-                    $this->dblogger->signal_maxruntime_exceeded();
-                    $filename = '{unknown}'; // default if $fileplugin false
-                    //fetch a file plugin for the current file
-                    $fileplugin = $this->provider->get_import_file($entity);
-                    if ($fileplugin !== false) {
-                        $filename = $fileplugin->get_filename();
-                    }
-                    //flush db log record
-                    //TODO: set end time?
-                    $this->dblogger->flush($filename);
-                    $state = new stdClass;
-                    $state->result = false;
-                    $state->entity = $nextentity;
-                    if ($this->fslogger) {
-                        $strid = 'importexceedstimelimit';
-                        if ($this->manual) {
-                            $strid = 'manualimportexceedstimelimit';
-                        }
-                        $msg = get_string($strid, 'local_datahub', $state);
-                        $this->fslogger->log_failure($msg);
-                    }
-                    return $state;
-                } else {
-                    // actually we're done, no next entities
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Specifies the UI labels for the various import files supported by this
-     * plugin
-     *
-     * @return array The string labels, in the order in which the
-     *               associated [entity]_action methods are defined
-     */
-    abstract function get_file_labels();
+    abstract public function get_file_labels();
 
     /**
      * Getter for the file system logging object

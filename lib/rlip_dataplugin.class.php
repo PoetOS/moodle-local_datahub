@@ -82,6 +82,13 @@ abstract class rlip_dataplugin {
 
         return new rlip_fslogger_linebased($fileplugin, $manual);
     }
+
+    /**
+     * Get the URL for a manual run.
+     *
+     * @return string The URL for a manual run.
+     */
+    abstract public function get_manualrun_url();
 }
 
 /**

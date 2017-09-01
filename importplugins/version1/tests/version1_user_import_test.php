@@ -2709,7 +2709,7 @@ class version1userimport_testcase extends rlip_test {
         $provider = new rlipimport_version1_importprovider_mockuser(array());
         $importplugin = new rlip_importplugin_version1($provider);
         $importplugin->mappings = rlipimport_version1_get_mapping('user');
-        $importplugin->fslogger = $provider->get_fslogger('dhimport_version1', 'user');
+        $importplugin->set_fslogger($provider->get_fslogger('dhimport_version1', 'user'));
         $inputobj = (object)$inputdata;
         $this->assertEquals($expected ? $uids[$expected] : false, $importplugin->get_userid_from_record($inputobj, 'user.csv', $prefix));
     }
@@ -2926,7 +2926,7 @@ class version1userimport_testcase extends rlip_test {
         $provider = new rlipimport_version1_importprovider_mockuser(array());
         $importplugin = new open_rlip_importplugin_version1($provider);
         $importplugin->mappings = rlipimport_version1_get_mapping('user');
-        $importplugin->fslogger = $provider->get_fslogger('dhimport_version1', 'user');
+        $importplugin->set_fslogger($provider->get_fslogger('dhimport_version1', 'user'));
         $error = 0;
         $errors = array();
         $errsuffix = '';

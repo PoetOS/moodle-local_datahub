@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    dhimport_version2
- * @author     Remote-Learner.net Inc
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @copyright  (C) 2017 Remote Learner.net Inc http://www.remote-learner.net
+ * @package dhimport_version2
+ * @author Remote-Learner.net Inc
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 Remote Learner.net Inc http://www.remote-learner.net
  */
 
 require_once('../../../../config.php');

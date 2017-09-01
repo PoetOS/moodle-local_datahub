@@ -26,7 +26,7 @@
 /**
  * Class for logging entry-specific messages to the file system
  */
-class rlip_fslogger {
+class rlip_fslogger implements \local_datahub\fslogger {
     var $fileplugin;
     var $manual;
     var $opened = false;

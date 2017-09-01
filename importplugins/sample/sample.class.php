@@ -96,4 +96,19 @@ class rlip_importplugin_sample extends rlip_importplugin_base {
         //this plugin is for testing only
         return false;
     }
+
+    /**
+     * Entry point for processing an import file
+     *
+     * This is override to provide direct access during tests.
+     *
+     * @param string $entity The type of entity
+     * @param int $maxruntime The max time in seconds to complete import (default/0 = unlimited)
+     * @param object $state Previous ran state data to continue from
+     * @return mixed object Current state of import processing,
+     *                             null for success, false if file is skipped.
+     */
+    public function process_import_file($entity, $maxruntime = 0, $state = null) {
+        return parent::process_import_file($entity, $maxruntime, $state);
+    }
 }

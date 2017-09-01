@@ -115,6 +115,20 @@ abstract class rlip_exportplugin_base extends rlip_dataplugin {
     }
 
     /**
+     * Get the URL for a manual run.
+     *
+     * @return string The URL for a manual run.
+     */
+    public function get_manualrun_url() {
+        global $CFG;
+        $directories = core_component::get_plugin_types();
+        $directory = $directories['dhexport'];
+        $directory = str_replace($CFG->dirroot, $CFG->wwwroot, $directory);
+        list($prefix, $plugintype, $pluginname) = explode('_', get_called_class());
+        return $directory.'/manualrun.php?plugin=dhexport_'.$pluginname;
+    }
+
+    /**
      * Mainline for export processing
      *
      * @param int $targetstarttime The timestamp representing the theoretical
