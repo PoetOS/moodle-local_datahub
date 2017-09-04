@@ -71,7 +71,14 @@ abstract class base implements entityinterface {
      * @param string $action The action we want fields for.
      * @return array|null An array of required field names, or null if not available for that action.
      */
-    abstract protected function get_required_fields($action = null);
+    abstract public function get_required_fields($action = null);
+
+    /**
+     * Get a list of supported actions for this entity.
+     *
+     * @return array An array of support action names.
+     */
+    abstract public function get_supported_actions();
 
     /**
      * Process a single record.

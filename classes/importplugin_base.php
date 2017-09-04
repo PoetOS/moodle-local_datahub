@@ -115,6 +115,43 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
     abstract protected function get_plugin();
 
     /**
+     * Determines whether the current plugin supports the supplied feature.
+     *
+     * @param string $feature A feature description, either in the form [entity] or [entity]_[action].
+     * @return array|bool An array of actions for a supplied entity, an array of required fields for
+     *               a supplied action, or false on error.
+     */
+    public function plugin_supports($feature) {
+        $parts = explode('_', $feature);
+        if (count($parts) == 1) {
+            // Is this entity supported?
+            return $this->plugin_supports_entity($feature);
+        } else if (count($parts) == 2) {
+            // Is this action supported?
+            list($entity, $action) = $parts;
+            return $this->plugin_supports_action($entity, $action);
+        }
+        return false;
+    }
+
+    /**
+     * Determine whether the current plugin supports a particular entity.
+     *
+     * @param string $entity The name of the entity.
+     * @return array|bool An array of supported actions for the entity, or false if not supported.
+     */
+    abstract protected function plugin_supports_entity($entity);
+
+    /**
+     * Determine whether the current plugin supports an action for an entity.
+     *
+     * @param string $entity The name of the entity.
+     * @param string $action The action.
+     * @return array|bool An array of required fields for the entity and action, or false if not supported.
+     */
+    abstract protected function plugin_supports_action($entity, $action);
+
+    /**
      * Re-indexes an import record based on the import header
      *
      * @param array $header Field names from the input file header

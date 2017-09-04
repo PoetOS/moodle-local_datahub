@@ -61,6 +61,21 @@ interface entityinterface {
     public function get_available_fields($action = null);
 
     /**
+     * Get a list of required fields for a given action.
+     *
+     * @param string $action The action we want fields for.
+     * @return array|null An array of required field names, or null if not available for that action.
+     */
+    public function get_required_fields($action = null);
+
+    /**
+     * Get a list of supported actions for this entity.
+     *
+     * @return array An array of support action names.
+     */
+    public function get_supported_actions();
+
+    /**
      * Return any configured field maps.
      *
      * @return array Array of field maps in the form [{standard field name} => {custom field name}]

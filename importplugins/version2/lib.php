@@ -25,6 +25,19 @@
 define('RLIPIMPORT_VERSION2_MAPPING_TABLE', 'dhimport_version2_mapping');
 
 /**
+ * Determines whether the current plugin supports the supplied feature
+ *
+ * @param string $feature A feature description, either in the form [entity] or [entity]_[action]
+ * @return mixed An array of actions for a supplied entity, an array of required fields for a supplied
+ *               action, or false on error
+ */
+function dhimport_version2_supports($feature) {
+    global $CFG;
+    $instance = rlip_dataplugin_factory::factory('dhimport_version2');
+    return $instance->plugin_supports($feature);
+}
+
+/**
  * Performs page setup work needed on the page for configuring field mapping for the import.
  *
  * @param string $baseurl The page's base url

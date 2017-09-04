@@ -98,5 +98,14 @@ interface importplugin {
      * @return array Array of available fields for that entity.
      */
     public function get_available_fields($entitytype);
+
+    /**
+     * Determines whether the current plugin supports the supplied feature.
+     *
+     * @param string $feature A feature description, either in the form [entity] or [entity]_[action].
+     * @return array|bool An array of actions for a supplied entity, an array of required fields for
+     *               a supplied action, or false on error.
+     */
+    public function plugin_supports($feature);
 }
 

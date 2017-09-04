@@ -77,6 +77,42 @@ class importplugin extends \local_datahub\importplugin_base {
     }
 
     /**
+     * Determine whether the current plugin supports a particular entity.
+     *
+     * @param string $entity The name of the entity.
+     * @return array|bool An array of supported actions for the entity, or false if not supported.
+     */
+    protected function plugin_supports_entity($entity) {
+        $entities = $this->get_import_entities();
+        if (in_array($entity, $entities, true)) {
+            $instance = $this->get_entity_instance($entity);
+            if (!empty($instance)) {
+                return $instance->get_supported_actions();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determine whether the current plugin supports an action for an entity.
+     *
+     * @param string $entity The name of the entity.
+     * @param string $action The action.
+     * @return array|bool An array of required fields for the entity and action, or false if not supported.
+     */
+    protected function plugin_supports_action($entity, $action) {
+        $entities = $this->get_import_entities();
+        if (in_array($entity, $entities, true)) {
+            $instance = $this->get_entity_instance($entity);
+            if (!empty($instance)) {
+                $requiredfields = $instance->get_required_fields($action);
+                return (is_array($requiredfields)) ? $requiredfields : false;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Mainline for running the import
      *
      * @param int $targetstarttime The timestamp for when this task was meant to be run.
