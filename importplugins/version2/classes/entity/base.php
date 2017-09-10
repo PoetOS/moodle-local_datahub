@@ -57,7 +57,7 @@ abstract class base implements entityinterface {
         $this->fslogger = $fslogger;
     }
 
-   /**
+    /**
      * Get the available fields for a given action.
      *
      * @param string $action The action we want fields for, or null for general list.
@@ -148,6 +148,18 @@ abstract class base implements entityinterface {
             }
         }
         return $record;
+    }
+
+    /**
+     * Log a failure.
+     *
+     * @param string $msg The message to log.
+     * @param \stdClass $record The current record.
+     * @param int $time The timestamp to use, or 0 for current time.
+     */
+    protected function log_failure($msg, $record, $time = 0) {
+        $entityname = $this->get_entity_name();
+        $this->fslogger->log_failure($msg, $time, $this->filename, $this->linenumber, $record, $entityname);
     }
 
     /**
@@ -265,7 +277,7 @@ abstract class base implements entityinterface {
         $messages = array();
 
         if ($missingfields !== false) {
-            // Missing one or more fields
+            // Missing one or more fields.
 
             // Process "1-of-n" type fields first.
             foreach ($missingfields as $key => $value) {
@@ -385,13 +397,13 @@ abstract class base implements entityinterface {
         global $CFG;
         require_once($CFG->dirroot.'/local/datahub/lib.php');
 
-        //make sure there are three parts
+        // Make sure there are three parts.
         $parts = explode('/', $date);
         if (count($parts) != 3) {
             return false;
         }
 
-        //make sure the month is valid
+        // Make sure the month is valid.
         $month = $parts[0];
         $day = $parts[1];
         $year = $parts[2];

@@ -107,5 +107,17 @@ interface importplugin {
      *               a supplied action, or false on error.
      */
     public function plugin_supports($feature);
+
+    /**
+     * Obtain the file-system logger for this plugin.
+     *
+     * This is needed because the whole fslogger process is ridiculously complicated. @TODO
+     *
+     * @param object $fileplugin The file plugin used for IO in the logger
+     * @param boolean $manual True on a manual run, false on a scheduled run
+     * @return object The appropriate logging object
+     */
+    public static function get_fs_logger($fileplugin, $manual);
+
 }
 

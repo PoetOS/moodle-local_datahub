@@ -40,7 +40,7 @@ require_once($CFG->dirroot.'/local/datahub/tests/other/rlip_test.class.php');
  * @group local_datahub
  * @group dhimport_version2
  */
-class version2emptyvalueupdates_testcase extends rlip_test {
+class version2emptyvalueupdates_user_testcase extends rlip_test {
 
     /**
      * Asserts that a record in the given table exists

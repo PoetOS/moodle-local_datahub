@@ -2377,7 +2377,7 @@ class version2userimport_testcase extends rlip_test {
     public function test_version2importnewuseremail() {
         global $CFG; // This is needed by the required files.
         require_once(dirname(__FILE__).'/other/rlip_importplugin_version2_fakeemail.php');
-        $importplugin = new rlip_importplugin_version2_fakeemail('test');
+        $importplugin = new rlip_importplugin_version2_userentity_fakeemail('test');
 
         $testuser = new stdClass;
         $testuser->username = 'testusername';
@@ -2465,7 +2465,7 @@ class version2userimport_testcase extends rlip_test {
     public function test_version2importnewuseremailgenerate() {
         global $CFG; // This is needed by the required files.
         require_once(dirname(__FILE__).'/other/rlip_importplugin_version2_fakeemail.php');
-        $importplugin = new rlip_importplugin_version2_fakeemail('test');
+        $importplugin = new rlip_importplugin_version2_userentity_fakeemail('test');
 
         $templatetext = '<p>Hi %%fullname%%, your account has been created! It has the following information
             Sitename: %%sitename%%

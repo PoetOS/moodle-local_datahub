@@ -581,7 +581,7 @@ class user extends base {
             $userdescriptor = static::get_user_descriptor($record);
             // Generic error.
             $errstr = "Error deleting user with {$userdescriptor}";
-            $this->fslogger->log_failure($errstr, 0, $filename, $this->linenumber, $record, "user");
+            $this->fslogger->log_failure($errstr, 0, $this->filename, $this->linenumber, $record, "user");
         }
 
         return false;
@@ -775,7 +775,6 @@ class user extends base {
      * Validates user profile field data. If successful, a cleaned object is returned.
      *
      * @param \stdClass $record The import record.
-     * @param string $filename The import file name, used for logging
      * @return bool If valid, returns a cleaned object. False if irrecoverably invalid.
      */
     protected function validate_custom_profile_data($record) {
@@ -886,7 +885,6 @@ class user extends base {
      * Determine userid from user import record
      *
      * @param \stdClass $record One record of import data
-     * @param string $filename The import file name, used for logging
      * @param bool $error Returned errors status, true means error, false ok
      * @param array $errors Array of error strings (if $error == true)
      * @param string $errsuffix returned error suffix string

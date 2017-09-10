@@ -237,5 +237,17 @@ class importplugin extends \local_datahub\importplugin_base {
     protected function hook_import_entities($entities, $targetstarttime, $lastruntime, $maxruntime, $state) {
         return ['any'];
     }
+
+    /**
+     * Obtain the file-system logger for this plugin.
+     *
+     * @param \stdClass $fileplugin The file plugin used for IO in the logger
+     * @param bool $manual True on a manual run, false on a scheduled run
+     * @return \rlip_import_version2_fslogger The appropriate logging object.
+     */
+    static function get_fs_logger($fileplugin, $manual) {
+        return new \dhimport_version2\fslogger($fileplugin, $manual);
+    }
+
 }
 
