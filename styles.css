@@ -29,3 +29,256 @@
 .modal-footer button {
     margin-left: 3px;
 }
+
+/* Queue */
+
+.local_datahub_queue .pausecontinue {
+    margin: 2em auto;
+    text-align: center;
+    width: 50%;
+}
+
+.local_datahub_queue .reschedule-indicator.loading,
+.local_datahub_queue .processing-indicator.loading {
+    display: inline-block;
+    margin-left: .5em;
+}
+
+.local_datahub_queue #loading_indicator.loading,
+.local_datahub_completed #loading_indicator.loading {
+    display: block;
+}
+
+.local_datahub_queue #loading_indicator.loading,
+.local_datahub_queue .reschedule-indicator.loading,
+.local_datahub_queue .processing-indicator.loading,
+.local_datahub_completed #loading_indicator.loading {
+    opacity: 1;
+}
+
+.local_datahub_queue #loading_indicator,
+.local_datahub_completed #loading_indicator,
+.local_datahub_queue .reschedule-indicator,
+.local_datahub_queue .processing-indicator {
+    opacity: 0;
+    display: none;
+    text-align: center;
+    transition: opacity 500ms ease-in-out;
+    -moz-transition: opacity 500ms ease-in-out;
+    -webkit-transition: opacity 500ms ease-in-out;
+}
+
+.local_datahub_queue #loading_indicator i,
+.local_datahub_completed #loading_indicator i,
+.nojobs-row i,
+.local_datahub_queue .nojobs-row .col-filename i {
+    padding: 1em;
+    font-size: 4em;
+    color: #444;
+}
+
+.nojobs-row i,
+.local_datahub_queue .nojobs-row .col-filename i {
+    color: gray;
+}
+
+.nojobs-row td {
+    text-align: center;
+}
+
+.local_datahub_queue .progress-parent {
+    border: 1px solid green;
+    width: 50%;
+    height: 1em;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.local_datahub_queue .progress-parent .progress-child {
+    background: green;
+    width: 0%;
+    height: 1em;
+}
+
+.local_datahub_queue .col-details .logs {
+    margin-left: .25em;
+}
+
+.local_datahub_queue .job-reschedule-row {
+    display: none;
+}
+
+.local_datahub_queue .col-filename i {
+    color: gray;
+}
+
+.local_datahub_queue .job-reschedule-row fieldset > label {
+    display: block;
+    margin-left: 2em;
+}
+
+.local_datahub_queue .job-reschedule-row td p,
+.local_datahub_queue .job-reschedule-row td form {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.local_datahub_queue .job-reschedule-row .queue_date_select {
+    margin-left: 3em;
+}
+
+.local_datahub_queue .job-reschedule-row .queue_date_select select[name="hour"] {
+    margin-left: 1em;
+}
+
+.local_datahub_queue .job-reschedule-row .queue-date-submit {
+    text-align: center;
+}
+
+.local_datahub_queue .alert-danger,
+.local_datahub_queue .alert-success,
+.local_datahub_completed .alert-danger,
+.local_datahub_completed .alert-success {
+    display: none;
+}
+
+.local_datahub_queue .alert-danger.show,
+.local_datahub_queue .alert-success.show,
+.local_datahub_completed .alert-danger.show,
+.local_datahub_completed .alert-success.show {
+    display: block;
+    opacity: 1;
+}
+
+.local_datahub_queue .alert p,
+.local_datahub_completed .alert p {
+    margin: 1em;
+}
+
+.local_datahub_queue table th.col-status-filename,
+.local_datahub_queue table.drag-active .ui-sortable-helper td.col-filename {
+    width: 30%;
+}
+
+.local_datahub_queue table th.col-status-details,
+.local_datahub_queue table.drag-active .ui-sortable-helper td.col-details {
+    width: 30%;
+}
+
+.local_datahub_queue table th.col-options,
+.local_datahub_queue table.drag-active .ui-sortable-helper td.col-options {
+    width: 25%;
+}
+
+.local_datahub_queue table.drag-active a.cancel_job,
+.local_datahub_queue table.drag-active a.cancel_job:hover,
+.local_datahub_queue table.drag-active a.reschedule_job,
+.local_datahub_queue table.drag-active a.reschedule_job:hover,
+.local_datahub_queue table.drag-active a.logs,
+.local_datahub_queue table.drag-active a.logs,
+.local_datahub_queue table.drag-active tr[data-type="scheduled"] {
+    color: gray;
+    text-decoration: none;
+    cursor: default;
+}
+
+.local_datahub_queue table.drag-active tr[data-type="scheduled"] {
+    background-color: #f4f5f7; /* Very light grayish blue */
+}
+
+.local_datahub_queue table .thead-default th,
+.local_datahub_completed table .thead-default th {
+    color: #464a4c;
+    background-color: #eceeef;
+}
+
+.local_datahub_queue table.drag-active tbody {
+    border-bottom: 1px solid #ccc;
+    border-top: inherit;
+}
+
+.local_datahub_queue table.drag-active tr.draggable {
+    border: 1px solid #ccc;
+}
+
+.local_datahub_queue table.drag-active .ui-sortable-helper {
+    display: table;
+    background-color: white;
+    opacity: 1;
+    border: 1px solid gray;
+    -webkit-box-shadow: 3px 3px 3px 0px #ccc;
+       -moz-box-shadow: 3px 3px 3px 0px #ccc;
+            box-shadow: 3px 3px 3px 0px #ccc;
+}
+
+.local_datahub_queue table tr.job-row.draggable .fa-hourglass-half {
+    display: none;
+}
+
+.local_datahub_queue table.drag-active tr.job-row.draggable i.fa-arrows.drag-job {
+    font-family: FontAwesome;
+    content: "\f252";
+}
+
+.local_datahub_queue table.drag-active tr.job-row.draggable i.fa-arrows.drag-job {
+    font-family: FontAwesome;
+    content: "\f047";
+}
+
+.local_datahub_queue table.drag-active tr.job-row.draggable i.fa-arrows {
+    -webkit-cursor: grab;
+       -moz-cursor: grab;
+            cursor: grab !important;
+    color: black;
+}
+
+.local_datahub_queue .job-row .fa-arrows {
+    cursor: not-allowed;
+}
+
+.local_datahub_queue .drag-active .job-row .fa-arrows {
+    color: black;
+    cursor: default;
+    cursor: grab;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+}
+
+.local_datahub_queue .drag-active .job-row {
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.local_datahub_queue table.drag-active .job-row.ui-sortable-helper .fa-arrows {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.local_datahub_queue table.drag-active .ui-sortable-placeholder {
+    background-color: #f1f2f3;
+    border: 0;
+    display: table-row;
+}
+
+.local_datahub_queue table.drag-active tr {
+     -webkit-user-select: none;
+        -moz-user-select: none;
+         -ms-user-select: none;
+             user-select: none;
+}
+
+.local_datahub_completed div.datepicker {
+    width: 70%;
+    text-align: center;
+    margin: 1.5em auto;
+}
+
+.local_datahub_completed div.datepicker input[type="date"] {
+    margin-bottom: auto;
+}
+/* end queue */

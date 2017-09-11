@@ -36,6 +36,7 @@ $PAGE->set_title($pagetitle);
 $PAGE->set_pagelayout('standard');
 $PAGE->navbar->add($pagetitle);
 $PAGE->add_body_class("datahub-version2");
+$PAGE->requires->css('/local/datahub/styles.css');
 
 echo $OUTPUT->header();
 
@@ -84,7 +85,7 @@ switch ($selectedtab) {
         require_once('includes/import.php');
         break;
     case DHIMPORT_VERSION2_TAB_QUEUE:
-        // TODO: Queue tab content here.
+        include_once('includes/queue.php');
         break;
     case DHIMPORT_VERSION2_TAB_SETTINGS:
         // TODO: Settings tab content here.

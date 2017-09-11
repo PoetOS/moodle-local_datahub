@@ -1,0 +1,12 @@
+{{#data}}
+    <tr data-job-id="{{id}}" class="job-row completed">
+        <td class="col-filename">
+            {{filename}}
+        </td>
+        <td class="col-status">{{status}}</td>
+        <td class="col-details">{{date_completed}}</td>
+        <td class="col-options">
+            <a href="{{baselink}}viewlogs.php?id={{id}}" data-id="{{id}}" class="view_logs">{{# str }} queuegetlogs, local_datahub {{/ str }}</a>
+        </td>
+    </tr>
+{{/data}}

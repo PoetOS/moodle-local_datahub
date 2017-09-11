@@ -1,0 +1,131 @@
+{{#data}}
+    <tr data-job-id="{{id}}" class="job-row {{#draggable}}draggable{{/draggable}}" data-type="{{type}}">
+        <td class="col-filename">
+            {{#draggable}}
+                <i data-id="{{id}}" class="fa fa-arrows drag-job" aria-hidden="true" title="{{# str }} queuedragtooltip, local_datahub {{/ str }}"></i>
+            {{/draggable}}
+            <i class="fa fa-hourglass-half" aria-hidden="true"></i>
+            <span {{#user_fullname}}title="Task created by {{user_fullname}}."{{/user_fullname}}>{{filename}}</span>
+        </td>
+        <td class="col-status">{{status}}</td>
+        <td class="col-details">
+            {{#scheduled_time}} {{scheduled_time}} {{/scheduled_time}}
+            {{#records_complete}}
+                <div class="progress-parent">
+                    <div class="progress-child" style="width:{{progress}}%;"></div>
+                </div>
+                <span class="records-count">
+                    {{records_complete}}/{{records_total}}
+                </span>
+                <a class="logs" href="{{baselink}}viewlogs.php?id={{id}}">{{# str }} queuegetlogs, local_datahub {{/ str }}</a>
+            {{/records_complete}}
+        </td>
+        <td class="col-options">
+            <a href="#*" data-id="{{id}}" class="cancel_job">{{# str }} queuecancel, local_datahub {{/ str }}</a>
+            {{#reschedule}}
+                / <a href="#*" data-id="{{id}}" class="reschedule_job">{{# str }} queuereschedule, local_datahub {{/ str }}</a>
+            {{/reschedule}}
+            <div class="reschedule-indicator">
+                <i class="fa fa-spinner fa-spin"></i>
+            </div>
+        </td>
+    </tr>
+    {{#reschedule}}
+    <tr class="job-reschedule-row" data-reschedule-id="{{id}}">
+        <td colspan="4">
+            <p>{{# str }} queuerescheduleinstr, local_datahub {{/ str }}</p>
+            <form>
+                <fieldset>
+                    <label><input type="radio" name="runorschedule" value="runnow" checked></input>{{# str }} queuerunnow, local_datahub {{/ str }}</label>
+                    <label><input type="radio" name="runorschedule" value="schedule"></input>{{# str }} queuerescheduledate, local_datahub {{/ str }}</label>
+                    <div class="queue_date_select">
+                        <input class="reschedule_task" type="datetime-local" value="" min="" max="" disabled/>
+                        {{!
+                         <select name="month" disabled>
+                            <option value="00">January</option>
+                            <option value="01">February</option>
+                            <option value="02">March</option>
+                            <option value="03">April</option>
+                            <option value="04">May</option>
+                            <option value="05">June</option>
+                            <option value="06">July</option>
+                            <option value="07">August</option>
+                            <option value="08">September</option>
+                            <option value="09">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <select name="day" disabled>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                        </select>
+                        <span>,</span>
+                        <select name="hour" disabled>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                        <span class="timesplit">:</span>
+                        <select name="minutes" disabled>
+                            <option value="00">00</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                        </select>
+                        <select name="ampm" disabled>
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    }}
+                    </div>
+                    <div class="queue-date-submit">
+                        <button type="button" class="btn queue-date-cancel">{{# str }} queuedatecancel, local_datahub {{/ str }}</button>
+                        <button type="button" class="btn queue-date-save">{{# str }} queuedatesubmit, local_datahub {{/ str }}</button>
+                        <div class="reschedule-indicator">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </td>
+    </tr>
+    {{/reschedule}}
+{{/data}}

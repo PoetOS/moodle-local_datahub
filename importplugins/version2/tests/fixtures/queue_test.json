@@ -1,0 +1,88 @@
+{
+    "baselink": "http://192.168.222.128/moodle31/local/datahub/",
+    "tasks": [
+        {
+            "id": "1772",
+            "filename": "users.csv",
+            "user_fullname": "Test User",
+            "type": "scheduled",
+            "status": "Scheduled",
+            "scheduled_time": "8/3 1:00 AM",
+            "progress": 0,
+            "reschedule": 1,
+            "draggable": 0,
+            "records_total": 0,
+            "records_complete": 0
+        },
+        {
+            "id": "1773",
+            "filename": "courses.csv",
+            "user_fullname": "Test User",
+            "type": "scheduled",
+            "status": "Scheduled",
+            "scheduled_time": "8/7 1:00 AM",
+            "progress": 0,
+            "reschedule": 1,
+            "draggable": 0,
+            "records_total": 0,
+            "records_complete": 0
+        },
+        {
+            "id": "1774",
+            "filename": "users.csv",
+            "user_fullname": "Test User",
+            "type": "processing",
+            "status": "Processing",
+            "scheduled_time": 0,
+            "progress": "90",
+            "reschedule": 0,
+            "draggable": 1,
+            "icon": 0,
+            "records_total": "45",
+            "records_complete": "42"
+        },
+        {
+            "id": "1775",
+            "filename": "other_users.csv",
+            "user_fullname": "Test User",
+            "type": "processing",
+            "status": "Processing",
+            "scheduled_time": 0,
+            "progress": "40",
+            "reschedule": 0,
+            "draggable": 1,
+            "icon": 0,
+            "records_total": "45",
+            "records_complete": "24"
+        },
+        {
+            "id": "1776",
+            "filename": "users.csv",
+            "user_fullname": "Test User",
+            "type": "waiting",
+            "status": "Waiting",
+            "scheduled_time": 0,
+            "progress": 0,
+            "reschedule": 0,
+            "draggable": 1,
+            "icon": 0,
+            "records_total": 0,
+            "records_complete": 0
+        },
+        {
+            "id": "1777",
+            "filename": "safety_course_users.csv",
+            "user_fullname": "Test User",
+            "type": "waiting",
+            "status": "Waiting",
+            "scheduled_time": 0,
+            "progress": 0,
+            "reschedule": 0,
+            "draggable": 1,
+            "icon": 0,
+            "records_total": 0,
+            "records_complete": 0
+        }
+    ]
+}
+
