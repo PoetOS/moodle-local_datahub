@@ -129,7 +129,7 @@ class version2emptyvalueupdates_user_testcase extends rlip_test {
         $user->email = 'rlipuser@rlipdomain.com';
         $user->password = 'Password!0';
         $user->idnumber = 'rlipidnumber';
-
+        $user->country = 'CA';
         $user->id = user_create_user($user);
 
         // Update a user with blank email and idnumber.

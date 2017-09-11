@@ -193,19 +193,6 @@ class rlipimport_version2_importprovider_multi_mock extends rlip_importprovider 
  */
 class rlipimport_version2_importprovider_mockcourse extends rlipimport_version2_importprovider_mock {
 
-    /**
-     * Hook for providing a file plugin for a particular
-     * import entity type
-     *
-     * @param string $entity The type of entity
-     * @return object The file plugin instance, or false if not applicable
-     */
-    public function get_import_file($entity) {
-        if ($entity != 'course') {
-            return false;
-        }
-        return parent::get_import_file($entity);
-    }
 }
 
 /**

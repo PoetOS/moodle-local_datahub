@@ -92,7 +92,7 @@ class version2emptyvalueupdates_enrolment_testcase extends rlip_test {
         $user->email = 'rlipuser@rlipdomain.com';
         $user->password = 'Password!0';
         $user->idnumber = 'rlipidnumber';
-
+        $user->country = 'CA';
         $user->id = user_create_user($user);
         set_config('siteguest', 99999);
 

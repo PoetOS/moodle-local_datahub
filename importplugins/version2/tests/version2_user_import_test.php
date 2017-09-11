@@ -87,6 +87,7 @@ class version2userimport_testcase extends rlip_test {
      */
     private function run_core_user_import($extradata, $usedefaultdata = true) {
         global $CFG;
+        set_config('country', 'CA'); // Moodle's user_delete_user()?
 
         if ($usedefaultdata) {
             $data = $this->get_core_user_data();
