@@ -81,7 +81,7 @@ echo print_tabs($tabs, $selectedtab, null, null, true);
 
 switch ($selectedtab) {
     case DHIMPORT_VERSION2_TAB_IMPORT:
-        // TODO: Import tab content here.
+        require_once('includes/import.php');
         break;
     case DHIMPORT_VERSION2_TAB_QUEUE:
         // TODO: Queue tab content here.

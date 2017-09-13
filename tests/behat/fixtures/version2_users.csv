@@ -1,0 +1,6 @@
+useraction,username,email,password,firstname,lastname,city,country
+create,version2user1,v2u1@domain.com,Admin12345$,v2,u1,Fort Collins,US
+create,version2user2,v2u2@domain.com,Admin12345$,v2,u2,Fort Collins,US
+create,version2user3,v2u3@domain.com,Admin12345$,v2,u3,Fort Collins,US
+create,version2user4,v2u4@domain.com,Admin12345$,v2,u4,Fort Collins,US
+create,version2user5,v2u5@domain.com,Admin12345$,v2,u5,Fort Collins,US

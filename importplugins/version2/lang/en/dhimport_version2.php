@@ -129,3 +129,37 @@ $string['user_schedule_file'] = 'User import filename';
 $string['userfile'] = 'User file';
 $string['userimports'] = 'User Imports';
 $string['usertab'] = 'User fields';
+
+$string['csvtemplateheader'] = 'Need a New Template File?';
+$string['csvtemplatedesc'] = 'Use this tool to create a CSV template file with the fields you need.';
+$string['csvtemplatebtn'] = 'Create CSV Template File';
+
+$string['csvtemplatetypelabel'] = 'Template Type:';
+$string['csvtemplatetypechoose'] = 'Choose...';
+$string['csvtemplateinstructions'] = 'Select and add the fields you want included in your CSV template file.';
+
+$string['csvincludedfieldslabel'] = 'Included in CSV';
+$string['csvavailablefieldslabel'] = 'Available';
+$string['csvrequiredfieldsnote'] = '* required field';
+$string['downloadcsvtemplate'] = 'Download CSV Template';
+
+$string['uploadheader'] = 'Upload File';
+$string['uploaddesc'] = 'Upload your input file and select whether to run as soon as possible or schedule the file at a designated time.';
+$string['importfilefieldlabel'] = 'Import file';
+
+$string['runasap'] = 'Run as soon as possible.';
+$string['runschedule'] = 'Schedule to run at a designated time.';
+
+$string['monthselect'] = 'Month';
+$string['dayselect'] = 'Day';
+$string['timeselect'] = 'Time';
+$string['timezonenote'] = 'Time is scheduled according to <span id="timezoneholder">your current</span> time.';
+
+$string['savetoqueue'] = 'Save to Queue';
+$string['queueaddsuccess'] = 'File uploaded and added to the queue successfully. Click <a href="{$a}">here</a> to view the queue.';
+
+$string['validationerrorheader'] = 'Validation Error';
+$string['validationerrorunknowntype'] = 'The import file format did not match one that can be processed. Use the CSV Template File tool to create a valid import file.';
+$string['validationerrorimporttype'] = 'The file uploaded appears to be a {$a} import, but the following validation errors occured:';
+$string['validationerrormissingrequired'] = 'The following required field(s) were missing: {$a}';
+$string['validationerrorunknownfields'] = 'The following field(s) are not valid for this type of import: {$a}';

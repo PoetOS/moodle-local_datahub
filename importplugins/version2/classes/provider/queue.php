@@ -92,7 +92,7 @@ class queue extends \rlip_importprovider {
      * @param int $queueid Id of queue.
      * @return array Array of files, empty array if files do not exist.
      */
-    protected function build_files($queueid) {
+    public function build_files($queueid) {
         global $CFG;
         $schedulefilespath = get_config('dhimport_version2', 'schedule_files_path');
         if ($schedulefilespath[0] !== '/') {

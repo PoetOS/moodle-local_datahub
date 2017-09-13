@@ -1,0 +1,90 @@
+#csvmodal {
+    display: none;
+}
+
+#csvtemplatebuilder {
+    width: 100%;
+    margin: auto;
+    text-align: center;
+}
+
+#csvtemplatebuilder .csvheader {
+    text-align: center;
+}
+
+#csvtemplatebuilder .csvheader h4 {
+    display: inline;
+    margin-right: 10px;
+}
+
+#csvtemplatebuilder:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#csvtemplatebuilder .fieldselect,
+#csvtemplatebuilder .fieldbuttons {
+    float: left;
+}
+
+#csvtemplatebuilder .fieldbuttons button {
+    display: block;
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 10px;
+}
+
+#csvtemplatebuilder .fieldselect {
+    width: 40%;
+}
+
+#csvtemplatebuilder .fieldbuttons {
+    width: 16%;
+    padding: 0 2%;
+    margin-top: 50px;
+    text-align: center;
+}
+
+#csvtemplatebuilder #removeselect,
+#csvtemplatebuilder #addselect {
+    width: 100%;
+    height: 200px;
+}
+
+#csvtemplatebuilder .fieldselect h4 {
+    text-align: center;
+}
+
+#csvtemplatebuilder #csvtemplatedownload {
+    margin-top: 20px;
+}
+
+#uploadformwrapper .mform .fitem div.fitemtitle {
+    display: none;
+}
+
+#uploadformwrapper .mform .fitem .felement {
+    margin-left: 0;
+}
+
+#uploadformwrapper .mform #fitem_id_month,
+#uploadformwrapper .mform #fitem_id_day,
+#uploadformwrapper .mform #fitem_id_time {
+    display: inline-block;
+}
+
+#uploadformwrapper .mform #fitem_id_month .felement.fselect,
+#uploadformwrapper .mform #fitem_id_day .felement.fselect,
+#uploadformwrapper .mform #fitem_id_time .felement.fselect {
+    width: auto;
+}
+
+#uploadformwrapper .mform .fitem.timeselect {
+    display: inline-block;
+    width: auto;
+}
+
+#importfileerrormodal {
+    display: none;
+}
