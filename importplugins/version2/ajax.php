@@ -21,9 +21,11 @@
  * @copyright (C) 2017 Remote Learner.net Inc http://www.remote-learner.net
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2016120504;
-$plugin->release = '3.2.0.0';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->component = 'dhimport_version2';
+define('AJAX_SCRIPT', true);
+require_once(__DIR__.'/../../../../config.php');
+require_login();
+$mode = required_param('mode', PARAM_TEXT);
+require_capability('moodle/site:config', \context_system::instance());
+$url = '/local/datahub/importplugins/version2/ajax.php';
+$page = new \dhimport_version2\page\ajax($url, '');
+$page->run($mode);

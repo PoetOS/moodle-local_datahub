@@ -23,10 +23,30 @@
 
 namespace dhimport_version2;
 
+use \dhimport_version2\provider\queue as queueprovider;
 /**
  * Version 2 import plugin.
  */
 class importplugin extends \local_datahub\importplugin_base {
+    /**
+     * Import plugin constructor.
+     *
+     * @param object $provider The import file provider that will be used to obtain import files.
+     * @param bool $manual Set to true if a manual run.
+     */
+    public function __construct($provider = null, $manual = false) {
+        /*
+            The moodlefile provider implies a manual import, so if we're not doing that, we're
+            in a cron run. Version2 uses a queue so the provider used in a cron is our queue
+            provider.
+
+            A little hacky, and should be changed when v1 removed.
+        */
+        if (!($provider instanceof \rlip_importprovider_moodlefile)) {
+            $provider = new queueprovider();
+        }
+        parent::__construct($provider, $manual);
+    }
 
     /**
      * Specifies the UI labels for the various import files supported by this plugin.
@@ -113,7 +133,7 @@ class importplugin extends \local_datahub\importplugin_base {
     }
 
     /**
-     * Mainline for running the import
+     * Mainline for running the import.
      *
      * @param int $targetstarttime The timestamp for when this task was meant to be run.
      * @param int $lastruntime The last time the export was run. (N/A for import).
@@ -126,7 +146,13 @@ class importplugin extends \local_datahub\importplugin_base {
         global $CFG;
         require_once($CFG->dirroot.'/local/datahub/lib.php');
 
-        $result = parent::run($targetstarttime, $lastruntime, $maxruntime, $state);
+        if ($this->provider instanceof queueprovider) {
+            // Use queue.
+            $result = $this->runqueue($targetstarttime, $lastruntime, $maxruntime, $state);
+        } else {
+            // Process directly.
+            $result = parent::run($targetstarttime, $lastruntime, $maxruntime, $state);
+        }
 
         if (!defined('PHPUnit_MAIN_METHOD')) {
             // Not in a unit test, so send out log files in a zip.
@@ -135,6 +161,65 @@ class importplugin extends \local_datahub\importplugin_base {
         }
 
         return $result;
+    }
+
+    /**
+     * Mainline for running the queue import.
+     *
+     * @param int $targetstarttime The timestamp for when this task was meant to be run.
+     * @param int $lastruntime The last time the export was run. (N/A for import).
+     * @param int $maxruntime The max time in seconds to complete import. (default/0 = unlimited).
+     * @param object $state Previous ran state data to continue from.
+     * @return object State data to pass back on re-entry, null on success.
+     *           ->result false on error, i.e. time limit exceeded.
+     */
+    protected function runqueue($targetstarttime = 0, $lastruntime = 0, $maxruntime = 0, $state = null) {
+        global $DB;
+        $record = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $this->provider->get_queueid()]);
+        if (empty($record)) {
+             // Should never happen.
+             return null;
+        }
+
+        // Queued import is in progress.
+        $record->status = queueprovider::STATUS_PROCESSING;
+        $DB->update_record(queueprovider::QUEUETABLE, $record);
+
+        // Run import.
+        $result = parent::run($targetstarttime, $lastruntime, $maxruntime, $state);
+
+        if ($result !== null) {
+            // Job is not finished, and state is saved for next cron job run.
+            $record->status = queueprovider::STATUS_QUEUED;
+            $DB->update_record(queueprovider::QUEUETABLE, $record);
+            return $result;
+        }
+
+        // Queued import has been completed.
+        $params = ['queueid' => $record->id, 'status' => queueprovider::STATUS_QUEUED];
+        $count = $DB->count_records(queueprovider::LOGTABLE, $params);
+        if (!empty($count)) {
+            // There are errors.
+            $record->status = queueprovider::STATUS_ERRORS;
+        } else {
+            $record->status = queueprovider::STATUS_FINISHED;
+        }
+        $DB->update_record(queueprovider::QUEUETABLE, $record);
+        return $result;
+    }
+
+    /**
+     * Mainline for running the manual import.
+     *
+     * @param int $targetstarttime The timestamp for when this task was meant to be run.
+     * @param int $lastruntime The last time the export was run. (N/A for import).
+     * @param int $maxruntime The max time in seconds to complete import. (default/0 = unlimited).
+     * @param object $state Previous ran state data to continue from.
+     * @return object State data to pass back on re-entry, null on success.
+     *           ->result false on error, i.e. time limit exceeded.
+     */
+    protected function runmanual($targetstarttime = 0, $lastruntime = 0, $maxruntime = 0, $state = null) {
+        return parent::run($targetstarttime, $lastruntime, $maxruntime, $state);
     }
 
     /**
