@@ -93,4 +93,21 @@ class ajax extends base {
         echo $this->ajax_response($records, true);
     }
 
+    /**
+     * Pause/unpause queue processing.
+     */
+    protected function mode_pausequeue() {
+        $enabled = (bool)required_param('enabled', PARAM_BOOL);
+        set_config('queuepaused', $enabled, 'dhimport_version2');
+        $this->mode_getpausestate();
+    }
+
+    /**
+     * Get the current pause state.
+     */
+    protected function mode_getpausestate() {
+        $paused = (bool)get_config('dhimport_version2', 'queuepaused');
+        echo $this->ajax_response(['state' => $paused], true);
+    }
+
 }

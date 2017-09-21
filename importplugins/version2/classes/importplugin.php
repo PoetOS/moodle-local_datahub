@@ -133,6 +133,21 @@ class importplugin extends \local_datahub\importplugin_base {
     }
 
     /**
+     * Should stop processing hook that stops processing if the queue has been paused.
+     *
+     * @param int $linenumber The line about to be processed.
+     * @return bool If true, stop processing. If false, continue as normal.
+     */
+    protected function hook_should_stop_processing($linenumber) {
+        $queuepaused = get_config('dhimport_version2', 'queuepaused');
+        if (!empty($queuepaused) && $this->provider instanceof queueprovider) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * Mainline for running the import.
      *
      * @param int $targetstarttime The timestamp for when this task was meant to be run.
@@ -148,7 +163,12 @@ class importplugin extends \local_datahub\importplugin_base {
 
         if ($this->provider instanceof queueprovider) {
             // Use queue.
-            $result = $this->runqueue($targetstarttime, $lastruntime, $maxruntime, $state);
+            $queuepaused = get_config('dhimport_version2', 'queuepaused');
+            if (empty($queuepaused)) {
+                $result = $this->runqueue($targetstarttime, $lastruntime, $maxruntime, $state);
+            } else {
+                return false;
+            }
         } else {
             // Process directly.
             $result = parent::run($targetstarttime, $lastruntime, $maxruntime, $state);

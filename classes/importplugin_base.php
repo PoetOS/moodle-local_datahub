@@ -304,6 +304,18 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
     }
 
     /**
+     * A hook that can be implemented in implementations that is called before processing every line.
+     *
+     * If this returns true, the processing stops in the same fashion as if the time limit was exceeded.
+     *
+     * @param int $linenumber The line about to be processed.
+     * @return bool If true, stop processing. If false, continue as normal.
+     */
+    protected function hook_should_stop_processing($linenumber) {
+        return false;
+    }
+
+    /**
      * Entry point for processing an import file
      *
      * @param string $entity The type of entity
@@ -399,9 +411,13 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
                 }
                 unset($state->linenumber);
             }
-            // Check if timelimit excceeded.
-            if ($maxruntime && (time() - $starttime) > $maxruntime) {
-                $this->dblogger->signal_maxruntime_exceeded();
+            // Check if we should continue processing.
+            $timeexceeded = ($maxruntime && (time() - $starttime) > $maxruntime) ? true : false;
+            $shouldstopprocessing = $this->hook_should_stop_processing($this->linenumber);
+            if ($timeexceeded === true || $shouldstopprocessing === true) {
+                if ($timeexceeded === true) {
+                    $this->dblogger->signal_maxruntime_exceeded();
+                }
                 $state->result = false;
                 $state->entity = $entity;
                 $state->filelines = $filelines;
