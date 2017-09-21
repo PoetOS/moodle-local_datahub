@@ -135,17 +135,17 @@ class importplugin extends \local_datahub\importplugin_base {
     /**
      * Should stop processing hook that stops processing if the queue has been paused.
      *
-     * @param int $linenumber The line about to be processed.
+     * @param int $starttime The timestamp the job started.
+     * @param int $maxruntime The maximum number of seconds allowed for the job.
      * @return bool If true, stop processing. If false, continue as normal.
      */
-    protected function hook_should_stop_processing($linenumber) {
+    protected function hook_should_stop_processing($starttime, $maxruntime) {
         $queuepaused = get_config('dhimport_version2', 'queuepaused');
         if (!empty($queuepaused) && $this->provider instanceof queueprovider) {
             return true;
         }
         return false;
     }
-
 
     /**
      * Mainline for running the import.
@@ -202,29 +202,44 @@ class importplugin extends \local_datahub\importplugin_base {
         }
 
         // Queued import is in progress.
-        $record->status = queueprovider::STATUS_PROCESSING;
-        $DB->update_record(queueprovider::QUEUETABLE, $record);
+        $newrecord = (object)['id' => $record->id, 'status' => queueprovider::STATUS_PROCESSING];
+        $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
+
+        $state = (!empty($record->state)) ? unserialize($record->state) : null;
 
         // Run import.
         $result = parent::run($targetstarttime, $lastruntime, $maxruntime, $state);
 
         if ($result !== null) {
             // Job is not finished, and state is saved for next cron job run.
-            $record->status = queueprovider::STATUS_QUEUED;
-            $DB->update_record(queueprovider::QUEUETABLE, $record);
-            return $result;
+            $newrecord = (object)[
+                'id' => $record->id,
+                'status' => queueprovider::STATUS_QUEUED,
+                'state' => serialize($result),
+            ];
+            $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
+            return null;
         }
 
         // Queued import has been completed.
-        $params = ['queueid' => $record->id, 'status' => queueprovider::STATUS_QUEUED];
+        $params = ['queueid' => $record->id, 'status' => 0];
         $count = $DB->count_records(queueprovider::LOGTABLE, $params);
         if (!empty($count)) {
             // There are errors.
-            $record->status = queueprovider::STATUS_ERRORS;
+            $newrecord = (object)[
+                'id' => $record->id,
+                'state' => '',
+                'status' => queueprovider::STATUS_ERRORS
+            ];
+            $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
         } else {
-            $record->status = queueprovider::STATUS_FINISHED;
+            $newrecord = (object)[
+                'id' => $record->id,
+                'state' => '',
+                'status' => queueprovider::STATUS_FINISHED
+            ];
+            $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
         }
-        $DB->update_record(queueprovider::QUEUETABLE, $record);
         return $result;
     }
 

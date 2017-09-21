@@ -308,10 +308,11 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
      *
      * If this returns true, the processing stops in the same fashion as if the time limit was exceeded.
      *
-     * @param int $linenumber The line about to be processed.
+     * @param int $starttime The timestamp the job started.
+     * @param int $maxruntime The maximum number of seconds allowed for the job.
      * @return bool If true, stop processing. If false, continue as normal.
      */
-    protected function hook_should_stop_processing($linenumber) {
+    protected function hook_should_stop_processing($starttime, $maxruntime) {
         return false;
     }
 
@@ -405,7 +406,7 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
         // Main processing loop.
         while ($record = $fileplugin->read()) {
             if (isset($state->linenumber)) {
-                if ($this->linenumber < $state->linenumber) {
+                if ($this->linenumber <= $state->linenumber) {
                     $this->linenumber++;
                     continue;
                 }
@@ -413,7 +414,7 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
             }
             // Check if we should continue processing.
             $timeexceeded = ($maxruntime && (time() - $starttime) > $maxruntime) ? true : false;
-            $shouldstopprocessing = $this->hook_should_stop_processing($this->linenumber);
+            $shouldstopprocessing = $this->hook_should_stop_processing($starttime, $maxruntime);
             if ($timeexceeded === true || $shouldstopprocessing === true) {
                 if ($timeexceeded === true) {
                     $this->dblogger->signal_maxruntime_exceeded();

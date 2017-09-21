@@ -62,5 +62,14 @@ function xmldb_dhimport_version2_upgrade($oldversion=0) {
         upgrade_plugin_savepoint($result, '2016120504', 'dhimport', 'version2');
     }
 
+    if ($result && $oldversion < 2016120505) {
+        $table = new xmldb_table('dhimport_version2_queue');
+        $field = new xmldb_field('state', XMLDB_TYPE_TEXT, null, null, null, null, null, 'status');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_plugin_savepoint($result, '2016120505', 'dhimport', 'version2');
+    }
+
     return $result;
 }

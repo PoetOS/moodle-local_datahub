@@ -36,6 +36,26 @@ class testqueueprovider extends queueprovider {
 }
 
 /**
+ * This is a test class that will auto-pause the queue after a given number of records.
+ * Used to test pause behavior.
+ */
+class autopauseimportplugin extends \dhimport_version2\importplugin {
+    /**
+     * Entry point for processing a single record.
+     *
+     * @param string $entity The type of entity.
+     * @param \stdClass $record One record of import data.
+     * @param string $filename Import file name to user for logging.
+     * @return bool True on success, otherwise false.
+     */
+    protected function process_record($entity, $record, $filename) {
+        $result = $this->entityobj->process_record($record, $this->linenumber);
+        set_config('queuepaused', true, 'dhimport_version2');
+        return $result;
+    }
+}
+
+/**
  * Test version 2 with queue provider.
  *
  * @group local_datahub
@@ -368,6 +388,157 @@ class version2_queue_testcase extends \rlip_test {
             'line' => 1,
         ];
         $this->assertLogRecord($expectedrecord, $logrecord);
+    }
+
+    /**
+     * Test import that stops mid-way due to pause.
+     */
+    public function test_queueduserimportwithpause() {
+        global $DB, $CFG, $USER;
+
+        $this->setAdminUser();
+        $now = time();
+
+        // Create queue record.
+        $queuerecord1 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
+            'timemodified' => $now,
+            'timecreated' => $now,
+        ];
+        $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
+
+        // Write file.
+        $data = [
+            [
+                    'useraction',
+                    'username',
+                    'password',
+                    'firstname',
+                    'lastname',
+                    'email',
+                    'city',
+            ],
+            [
+                    'create',
+                    'testuser1',
+                    'Testpass!0',
+                    'MyFirstName1',
+                    'MyLastName1',
+                    'test1@example.com',
+                    'Toronto',
+            ],
+            [
+                    'create',
+                    'testuser2',
+                    'Testpass!0',
+                    'MyFirstName2',
+                    'MyLastName2',
+                    'test2@example.com',
+                    'Toronto',
+            ],
+        ];
+        if (!file_exists($CFG->dataroot.'/datahub')) {
+            mkdir($CFG->dataroot.'/datahub');
+        }
+        if (!file_exists($CFG->dataroot.'/datahub/dhimport_version2')) {
+            mkdir($CFG->dataroot.'/datahub/dhimport_version2');
+        }
+        $filename = $CFG->dataroot.'/datahub/dhimport_version2/'.$queuerecord1->id.'.csv';
+        $filecontents = '';
+        foreach ($data as $line) {
+            $filecontents .= implode(',', $line)."\n";
+        }
+        file_put_contents($filename, $filecontents);
+
+        $provider = new testqueueprovider();
+        $importplugin = new autopauseimportplugin($provider);
+        $importplugin->run();
+
+        // Check that the queue record still exists, that state is present, and status is queued.
+        $queuerecord2 = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $this->assertNotEmpty($queuerecord2);
+        $this->assertNotEmpty($queuerecord2->state);
+        $this->assertEquals(queueprovider::STATUS_QUEUED, $queuerecord2->status);
+
+        // Check the log table.
+        $logrecords = $DB->get_records(queueprovider::LOGTABLE, ['queueid' => $queuerecord1->id]);
+        $this->assertEquals(2, count($logrecords));
+
+        // The first user should have been created.
+        $expectedrecord = (object)[
+            'status' => 1,
+            'message' => 'User with username "testuser1", email "test1@example.com" successfully created.',
+            'line' => 1,
+            'filename' => $queuerecord1->id.'.csv',
+        ];
+        $this->assertLogRecord($expectedrecord, array_shift($logrecords));
+
+        // The next log record is an interrupt message.
+        $expectedrecord = (object)[
+            'status' => 0,
+            'message' => 'Import processing of entity \'any\' partially processed. Processed 0 of 2 total records. Import will continue at next cron.',
+            'line' => '',
+            'filename' => $queuerecord1->id,
+        ];
+        $this->assertLogRecord($expectedrecord, array_shift($logrecords));
+
+        // Assert only the first user was created.
+        $testuser1 = $DB->get_record('user', ['username' => 'testuser1']);
+        $this->assertNotEmpty($testuser1);
+        $testuser2 = $DB->get_record('user', ['username' => 'testuser2']);
+        $this->assertEmpty($testuser2);
+
+        // Unpause the queue.
+        set_config('queuepaused', false, 'dhimport_version2');
+
+        // Run again.
+        $importplugin->run();
+
+        // Check that the queue record still exists, that state is present, and status is finished with errors.
+        $queuerecord2 = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $this->assertNotEmpty($queuerecord2);
+        $this->assertEmpty($queuerecord2->state);
+        $this->assertEquals(queueprovider::STATUS_ERRORS, $queuerecord2->status);
+
+        // Check the log table.
+        $logrecords = $DB->get_records(queueprovider::LOGTABLE, ['queueid' => $queuerecord1->id]);
+        $this->assertEquals(3, count($logrecords));
+
+        // The first user should have been created.
+        $expectedrecord = (object)[
+            'status' => 1,
+            'message' => 'User with username "testuser1", email "test1@example.com" successfully created.',
+            'line' => 1,
+            'filename' => $queuerecord1->id.'.csv',
+        ];
+        $this->assertLogRecord($expectedrecord, array_shift($logrecords));
+
+        // The next log record is an interrupt message.
+        $expectedrecord = (object)[
+            'status' => 0,
+            'message' => 'Import processing of entity \'any\' partially processed. Processed 0 of 2 total records. Import will continue at next cron.',
+            'line' => '',
+            'filename' => $queuerecord1->id,
+        ];
+        $this->assertLogRecord($expectedrecord, array_shift($logrecords));
+
+        // The first user should have been created.
+        $expectedrecord = (object)[
+            'status' => 1,
+            'message' => 'User with username "testuser2", email "test2@example.com" successfully created.',
+            'line' => 2,
+            'filename' => $queuerecord1->id.'.csv',
+        ];
+        $this->assertLogRecord($expectedrecord, array_shift($logrecords));
+
+        // Assert now both users are created.
+        $testuser1 = $DB->get_record('user', ['username' => 'testuser1']);
+        $this->assertNotEmpty($testuser1);
+        $testuser2 = $DB->get_record('user', ['username' => 'testuser2']);
+        $this->assertNotEmpty($testuser2);
+
     }
 
 }
