@@ -71,5 +71,23 @@ function xmldb_dhimport_version2_upgrade($oldversion=0) {
         upgrade_plugin_savepoint($result, '2016120505', 'dhimport', 'version2');
     }
 
+    if ($result && $oldversion < 2016120506) {
+        $table = new xmldb_table('dhimport_version2_queue');
+        $field = new xmldb_field('queueorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'status');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+
+            // Set the initial values for the order.
+            $order = 0;
+            $queuerecords = $DB->get_records('dhimport_version2_queue', null, 'id ASC');
+            foreach ($queuerecords as $record) {
+                $newrecord = (object)['id' => $record->id, 'queueorder' => $order];
+                $DB->update_record('dhimport_version2_queue', $newrecord);
+                $order++;
+            }
+        }
+        upgrade_plugin_savepoint($result, '2016120506', 'dhimport', 'version2');
+    }
+
     return $result;
 }

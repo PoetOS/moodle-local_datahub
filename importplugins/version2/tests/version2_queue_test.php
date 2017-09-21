@@ -105,6 +105,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -130,6 +131,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_ERRORS,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -139,6 +141,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_FINISHED,
             'state' => '',
+            'queueorder' => 1,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -148,6 +151,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 2,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -157,6 +161,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 3,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -166,6 +171,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_ERRORS,
             'state' => '',
+            'queueorder' => 4,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -175,11 +181,11 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_FINISHED,
             'state' => '',
+            'queueorder' => 5,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
         $queuerecord5->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord5);
-
 
         $provider = new testqueueprovider();
 
@@ -201,6 +207,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -210,6 +217,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_PROCESSING,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -243,6 +251,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -270,6 +279,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -344,6 +354,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -416,6 +427,7 @@ class version2_queue_testcase extends \rlip_test {
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
+            'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
         ];

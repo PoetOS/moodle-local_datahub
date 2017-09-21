@@ -29,6 +29,13 @@ use \dhimport_version2\provider\queue as queueprovider;
  * Ajax page.
  */
 class ajax extends base {
+
+    /** Error indicating input received was invalid. */
+    const ERROR_BADINPUT = 'badinput';
+
+    /** Error indicating operation cannot be performed unless queue in paused. */
+    const ERROR_QUEUENOTPAUSED = 'queuenotpaused';
+
     /**
      * Hook function run before the main page mode.
      *
@@ -89,7 +96,7 @@ class ajax extends base {
      */
     protected function mode_getqueuelist() {
         global $DB;
-        $records = $DB->get_records(queueprovider::QUEUETABLE, null, 'id DESC');
+        $records = $DB->get_records(queueprovider::QUEUETABLE, null, 'queueorder ASC');
         echo $this->ajax_response($records, true);
     }
 
@@ -110,4 +117,40 @@ class ajax extends base {
         echo $this->ajax_response(['state' => $paused], true);
     }
 
+    /*
+     * Reorder the queue list.
+     */
+    protected function mode_reorderqueue() {
+        global $DB;
+
+        $queuepaused = get_config('dhimport_version2', 'queuepaused');
+        if (empty($queuepaused)) {
+            $errmsg = get_string('queue_error_cannotreorderwhileunpaused', 'dhimport_version2');
+            echo $this->error_response($errmsg, static::ERROR_QUEUENOTPAUSED);
+            return false;
+        }
+
+        $order = required_param('order', PARAM_TEXT);
+        $order = explode(',', $order);
+
+        // Validate each item.
+        foreach ($order as $id) {
+            if (!is_numeric($id)) {
+                $errmsg = get_string('queue_error_badidforreorder', 'dhimport_version2');
+                echo $this->error_response($errmsg, static::ERROR_BADINPUT);
+                return false;
+            }
+        }
+
+        // Do reordering.
+        $queueorder = 0;
+        foreach ($order as $id) {
+            $updateobj = (object)['id' => $id, 'queueorder' => $queueorder];
+            $DB->update_record(queueprovider::QUEUETABLE, $updateobj);
+            $queueorder++;
+        }
+
+        // Return the queue list. In the correct order.
+        $this->mode_getqueuelist();
+    }
 }

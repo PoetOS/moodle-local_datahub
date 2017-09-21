@@ -114,6 +114,8 @@ $string['newenrolmentemailtemplatedesc'] = 'If enabled, send users enrolled with
 <li><b>%%course_summary%%</b>: The course\'s summary.</li>
 </ul>
 ';
+$string['queue_error_badidforreorder'] = 'An item in the order parameter was not a valid ID';
+$string['queue_error_cannotreorderwhileunpaused'] = 'Queue reordering can only be done while the queue is paused.';
 $string['scheduling'] = 'Scheduling';
 $string['teacher'] = 'Course Teacher';
 $string['import_files_path'] = 'Import files path';

@@ -62,9 +62,9 @@ class queue extends \rlip_importprovider {
 
         // Check in progress import. 0 = queued, 1 = finished, 2 = finished with errors, 3 = processing.
         $params = ['status' => static::STATUS_PROCESSING];
-        $queue = $DB->get_records(static::QUEUETABLE, $params, 'id desc');
+        $queue = $DB->get_records(static::QUEUETABLE, $params, 'queueorder asc');
         if (!empty($queue)) {
-            $current = array_pop($queue);
+            $current = reset($queue);
             /*
                 Something went wrong when processing this queue.
                 The file was marked as processing, but it did not finish gracefully
@@ -77,9 +77,9 @@ class queue extends \rlip_importprovider {
         // Nothing is currently being processed, checking for unprocessed.
         $files = [];
         $params = ['status' => static::STATUS_QUEUED];
-        $queue = $DB->get_records(static::QUEUETABLE, $params, 'id desc');
+        $queue = $DB->get_records(static::QUEUETABLE, $params, 'queueorder asc');
         if (!empty($queue)) {
-            $next = array_pop($queue);
+            $next = reset($queue);
             $this->queueid = $next->id;
             $files = $this->build_files($this->queueid);
         }
