@@ -36,6 +36,9 @@ class ajax extends base {
     /** Error indicating operation cannot be performed unless queue in paused. */
     const ERROR_QUEUENOTPAUSED = 'queuenotpaused';
 
+    /** Queue item was not found. */
+    const ERROR_QUEUEITEMNOTFOUND = 'queueitemnotfound';
+
     /**
      * Hook function run before the main page mode.
      *
@@ -254,4 +257,21 @@ class ajax extends base {
         }
         echo $this->ajax_response($output, true, $extra);
     }
+
+    /**
+     * Cancel a queue item.
+     */
+    protected function mode_cancelitem() {
+        global $DB;
+        $itemid = required_param('itemid', PARAM_INT);
+        $record = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $itemid]);
+        if (!empty($record)) {
+            $DB->delete_records(queueprovider::QUEUETABLE, ['id' => $record->id]);
+            echo $this->ajax_response(null, true);
+        } else {
+            $errmsg = get_string('queue_error_itemnotfound', 'dhimport_version2');
+            echo $this->error_response($errmsg, static::ERROR_QUEUEITEMNOTFOUND);
+        }
+    }
+
 }
