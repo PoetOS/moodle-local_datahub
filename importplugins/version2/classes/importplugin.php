@@ -36,13 +36,13 @@ class importplugin extends \local_datahub\importplugin_base {
      */
     public function __construct($provider = null, $manual = false) {
         /*
-            The moodlefile provider implies a manual import, so if we're not doing that, we're
-            in a cron run. Version2 uses a queue so the provider used in a cron is our queue
-            provider.
+            Version 2 uses the queue to process files, so unless we're doing a manual run,
+            override the provider with the queue provider.
 
-            A little hacky, and should be changed when v1 removed.
+            When we remove version 1, it's a good idea to revisit this and move the queue provider
+            construction up the chain a little.
         */
-        if (!($provider instanceof \rlip_importprovider_moodlefile)) {
+        if ($manual !== true) {
             $provider = new queueprovider();
         }
         parent::__construct($provider, $manual);

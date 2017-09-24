@@ -101,7 +101,7 @@ class version2userimport_testcase extends rlip_test {
 
         $provider = new \rlipimport_version2_importprovider_mockuser($data);
 
-        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider, null, true);
         $importplugin->run();
     }
 
@@ -225,7 +225,7 @@ class version2userimport_testcase extends rlip_test {
         $data = $this->get_core_user_data();
         $provider = new \rlipimport_version2_importprovider_mockuser($data);
 
-        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider, null, true);
         $importplugin->run();
 
         $password = $data['password'];
@@ -254,7 +254,7 @@ class version2userimport_testcase extends rlip_test {
         $data['useraction'] = 'add';
         $provider = new \rlipimport_version2_importprovider_mockuser($data);
 
-        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider, null, true);
         $importplugin->run();
 
         $password = $data['password'];

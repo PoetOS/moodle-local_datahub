@@ -249,7 +249,7 @@ class version2enrolmentimport_testcase extends rlip_test {
 
         $provider = new rlipimport_version2_importprovider_mockenrolment($data);
 
-        $importplugin = new rlip_importplugin_version2($provider);
+        $importplugin = new rlip_importplugin_version2($provider, true);
         $importplugin->run();
     }
 

@@ -104,6 +104,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -128,6 +129,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord0 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_ERRORS,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -136,6 +138,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord1 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_FINISHED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -144,6 +147,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord2 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -152,6 +156,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord3 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -160,6 +165,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord4 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_ERRORS,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -168,6 +174,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord5 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_FINISHED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -193,6 +200,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord1 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -201,6 +209,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord2 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_PROCESSING,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -233,6 +242,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord1 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -259,6 +269,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord1 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];
@@ -332,6 +343,7 @@ class version2_queue_testcase extends \rlip_test {
         $queuerecord1 = (object)[
             'userid' => $USER->id,
             'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
             'timemodified' => $now,
             'timecreated' => $now,
         ];

@@ -122,7 +122,7 @@ class version2courseimport_testcase extends rlip_test {
         }
 
         $provider = new rlipimport_version2_importprovider_mockcourse($data);
-        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider, null, true);
         $importplugin->run();
     }
 
@@ -307,7 +307,7 @@ class version2courseimport_testcase extends rlip_test {
         $data = $this->get_core_course_data('childcategory');
         $data['shortname'] = 'requiredfields';
         $provider = new rlipimport_version2_importprovider_mockcourse($data);
-        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider, null, true);
         $importplugin->run();
 
         unset($data['entity']);

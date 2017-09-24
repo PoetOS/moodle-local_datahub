@@ -119,7 +119,7 @@ class version2emptyvalueupdates_enrolment_testcase extends rlip_test {
 
         $provider = new rlipimport_version2_importprovider_emptyenrolment($data);
 
-        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider, null, true);
         $importplugin->run();
 
         $this->assert_record_exists('role_assignments', array(
@@ -133,7 +133,7 @@ class version2emptyvalueupdates_enrolment_testcase extends rlip_test {
 
         $provider = new rlipimport_version2_importprovider_emptyenrolment($data);
 
-        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin = rlip_dataplugin_factory::factory('dhimport_version2', $provider, null, true);
         $importplugin->run();
 
         // Validation.
