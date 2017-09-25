@@ -83,13 +83,17 @@ class ajax extends base {
      *
      * @param mixed $data Wrapper for response data.
      * @param bool $success General success indicator.
+     * @param array $extraparams Additional parameters to include as top-level parameters.
      */
-    protected function ajax_response($data, $success = true) {
+    protected function ajax_response($data, $success = true, array $extraparams = []) {
         $result = new \stdClass;
         $result->success = $success;
         $result->data = $data;
         $baselink = new \moodle_url('/local/datahub/importplugins/version2/ajax.php');
         $result->baselink = (string)$baselink;
+        foreach ($extraparams as $param => $val) {
+            $result->$param = $val;
+        }
         return json_encode($result);
     }
 
@@ -212,5 +216,42 @@ class ajax extends base {
 
         // Return the queue list. In the correct order.
         $this->mode_getqueuelist();
+    }
+
+    /**
+     * Get completed queue items.
+     */
+    protected function mode_getcompleted() {
+        global $DB;
+        $start = optional_param('start', 0, PARAM_INT);
+        $end = optional_param('end', 0, PARAM_INT);
+        $select = '(status = ? OR status = ?)';
+        $params = [queueprovider::STATUS_FINISHED, queueprovider::STATUS_ERRORS];
+        $extra = [];
+        if (!empty($start)) {
+            $select .= ' AND timecompleted >= ?';
+            $params[] = $start;
+            $extra['start'] = $start;
+        }
+        if (!empty($end)) {
+            $select .= ' AND timecompleted <= ?';
+            $params[] = $end;
+            $extra['end'] = $end;
+        }
+        $output = [];
+        $order = 'timecompleted DESC';
+        $completedrecords = $DB->get_recordset_select(queueprovider::QUEUETABLE, $select, $params, $order);
+        foreach ($completedrecords as $record) {
+            $statusstr = ($record->status == queueprovider::STATUS_FINISHED)
+                ? get_string('queue_status_complete', 'dhimport_version2')
+                : get_string('queue_status_errors', 'dhimport_version2');
+            $output[] = [
+                'id' => $record->id,
+                'filename' => $record->filename,
+                'status' => $statusstr,
+                'date_completed' => userdate($record->timecompleted),
+            ];
+        }
+        echo $this->ajax_response($output, true, $extra);
     }
 }

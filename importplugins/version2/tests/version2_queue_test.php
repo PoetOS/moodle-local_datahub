@@ -134,6 +134,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord);
 
@@ -160,6 +161,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord0->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord0);
 
@@ -170,6 +172,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 1,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
 
@@ -180,6 +183,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 2,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord2->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord2);
 
@@ -190,6 +194,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 3,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord3->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord3);
 
@@ -200,6 +205,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 4,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord4->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord4);
 
@@ -210,6 +216,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 5,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord5->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord5);
 
@@ -236,6 +243,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
 
@@ -246,6 +254,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord2->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord2);
 
@@ -280,6 +289,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
 
@@ -308,6 +318,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
 
@@ -383,6 +394,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
 
@@ -456,6 +468,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
 
@@ -607,6 +620,7 @@ class version2_queue_testcase extends \rlip_test {
             'queueorder' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
+            'timecompleted' => 0,
         ];
         $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
 

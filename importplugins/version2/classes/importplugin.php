@@ -265,14 +265,16 @@ class importplugin extends \local_datahub\importplugin_base {
             $newrecord = (object)[
                 'id' => $record->id,
                 'state' => '',
-                'status' => queueprovider::STATUS_ERRORS
+                'status' => queueprovider::STATUS_ERRORS,
+                'timecompleted' => time(),
             ];
             $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
         } else {
             $newrecord = (object)[
                 'id' => $record->id,
                 'state' => '',
-                'status' => queueprovider::STATUS_FINISHED
+                'status' => queueprovider::STATUS_FINISHED,
+                'timecompleted' => time(),
             ];
             $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
         }

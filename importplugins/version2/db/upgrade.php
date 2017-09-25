@@ -98,5 +98,14 @@ function xmldb_dhimport_version2_upgrade($oldversion=0) {
         upgrade_plugin_savepoint($result, '2016120507', 'dhimport', 'version2');
     }
 
+    if ($result && $oldversion < 2016120508) {
+        $table = new xmldb_table('dhimport_version2_queue');
+        $field = new xmldb_field('timecompleted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_plugin_savepoint($result, '2016120508', 'dhimport', 'version2');
+    }
+
     return $result;
 }
