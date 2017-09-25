@@ -56,6 +56,32 @@ class autopauseimportplugin extends \dhimport_version2\importplugin {
 }
 
 /**
+ * This is a test class that will interrupt the queue after each record to allow data inspection.
+ */
+class interruptimportplugin extends \dhimport_version2\importplugin {
+    /**
+     * A hook that is called after a record is processed.
+     *
+     * @param \stdClass $record The record that was processed.
+     * @param array $metadata Various items of metadata about the process run.
+     *                  string 'filepath' The path where the file is stored.
+     *                  string 'filename' The name of the file being processed.
+     *                  int 'filelines' The number of lines in the file.
+     *                  int 'linenumber' The current line being processed.
+     *                  \stdClass 'state' The state object.
+     *                  string 'entity' The entity being processed.
+     *                  int 'maxruntime' The maximum number of seconds allowed for this run.
+     *                  int 'starttime' The timestamp when this run started.
+     * @param rlip_fileplugin_base $fileplugin The file plugin in use.
+     */
+    protected function hook_did_process_record($record, $metadata, $fileplugin) {
+        parent::hook_did_process_record($record, $metadata, $fileplugin);
+        throw new \Exception('INTERRUPT');
+    }
+}
+
+
+/**
  * Test version 2 with queue provider.
  *
  * @group local_datahub
@@ -562,7 +588,124 @@ class version2_queue_testcase extends \rlip_test {
         $this->assertNotEmpty($testuser1);
         $testuser2 = $DB->get_record('user', ['username' => 'testuser2']);
         $this->assertNotEmpty($testuser2);
+    }
 
+    /**
+     * Test import tracks processing progress.
+     */
+    public function test_queuedimporttracksprogress() {
+        global $DB, $CFG, $USER;
+
+        $this->setAdminUser();
+        $now = time();
+
+        // Create queue record.
+        $queuerecord1 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
+            'queueorder' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+        ];
+        $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
+
+        // Write file.
+        $data = [
+            [
+                    'useraction',
+                    'username',
+                    'password',
+                    'firstname',
+                    'lastname',
+                    'email',
+                    'city',
+            ],
+            [
+                    'create',
+                    'testuser1',
+                    'Testpass!0',
+                    'MyFirstName1',
+                    'MyLastName1',
+                    'test1@example.com',
+                    'Toronto',
+            ],
+            [
+                    'create',
+                    'testuser2',
+                    'Testpass!0',
+                    'MyFirstName2',
+                    'MyLastName2',
+                    'test2@example.com',
+                    'Toronto',
+            ],
+            [
+                    'create',
+                    'testuser3',
+                    'Testpass!0',
+                    'MyFirstName3',
+                    'MyLastName3',
+                    'test3@example.com',
+                    'Toronto',
+            ],
+        ];
+        if (!file_exists($CFG->dataroot.'/datahub')) {
+            mkdir($CFG->dataroot.'/datahub');
+        }
+        if (!file_exists($CFG->dataroot.'/datahub/dhimport_version2')) {
+            mkdir($CFG->dataroot.'/datahub/dhimport_version2');
+        }
+        $filename = $CFG->dataroot.'/datahub/dhimport_version2/'.$queuerecord1->id.'.csv';
+        $filecontents = '';
+        foreach ($data as $line) {
+            $filecontents .= implode(',', $line)."\n";
+        }
+        file_put_contents($filename, $filecontents);
+
+        $provider = new testqueueprovider();
+        $importplugin = new interruptimportplugin($provider);
+
+        // Run one record.
+        try {
+            $importplugin->run();
+        } catch (\Exception $e) {
+        }
+        $qrec = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $this->assertNotEmpty($qrec->state);
+        $state = unserialize($qrec->state);
+        $this->assertEquals(4, $state->filelines);
+        $this->assertEquals(1, $state->linenumber);
+        $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser1']));
+        $this->assertEmpty($DB->get_record('user', ['username' => 'testuser2']));
+        $this->assertEmpty($DB->get_record('user', ['username' => 'testuser3']));
+
+        // Run second record.
+        try {
+            $importplugin->run();
+        } catch (\Exception $e) {
+        }
+        $qrec = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $this->assertNotEmpty($qrec->state);
+        $state = unserialize($qrec->state);
+        $this->assertEquals(4, $state->filelines);
+        $this->assertEquals(2, $state->linenumber);
+        $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser1']));
+        $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser2']));
+        $this->assertEmpty($DB->get_record('user', ['username' => 'testuser3']));
+
+        // Run third record.
+        try {
+            $importplugin->run();
+        } catch (\Exception $e) {
+        }
+        $qrec = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $this->assertNotEmpty($qrec->state);
+        $state = unserialize($qrec->state);
+        $this->assertEquals(4, $state->filelines);
+        $this->assertEquals(3, $state->linenumber);
+        $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser1']));
+        $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser2']));
+        $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser3']));
     }
 
 }

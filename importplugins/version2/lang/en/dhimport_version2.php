@@ -116,6 +116,9 @@ $string['newenrolmentemailtemplatedesc'] = 'If enabled, send users enrolled with
 ';
 $string['queue_error_badidforreorder'] = 'An item in the order parameter was not a valid ID';
 $string['queue_error_cannotreorderwhileunpaused'] = 'Queue reordering can only be done while the queue is paused.';
+$string['queue_status_processing'] = 'Processing';
+$string['queue_status_waiting'] = 'Waiting';
+$string['queue_status_scheduled'] = 'Scheduled';
 $string['scheduling'] = 'Scheduling';
 $string['teacher'] = 'Course Teacher';
 $string['import_files_path'] = 'Import files path';

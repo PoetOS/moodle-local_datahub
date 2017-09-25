@@ -317,6 +317,44 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
     }
 
     /**
+     * A hook that is called just before a record is processed.
+     *
+     * @param \stdClass $record The record that was processed.
+     * @param array $metadata Various items of metadata about the process run.
+     *                  string 'filepath' The path where the file is stored.
+     *                  string 'filename' The name of the file being processed.
+     *                  int 'filelines' The number of lines in the file.
+     *                  int 'linenumber' The current line being processed.
+     *                  \stdClass 'state' The state object.
+     *                  string 'entity' The entity being processed.
+     *                  int 'maxruntime' The maximum number of seconds allowed for this run.
+     *                  int 'starttime' The timestamp when this run started.
+     * @param rlip_fileplugin_base $fileplugin The file plugin in use.
+     */
+    protected function hook_will_process_record($record, $metadata, $fileplugin) {
+        // Do nothing by default.
+    }
+
+    /**
+     * A hook that is called after a record is processed.
+     *
+     * @param \stdClass $record The record that was processed.
+     * @param array $metadata Various items of metadata about the process run.
+     *                  string 'filepath' The path where the file is stored.
+     *                  string 'filename' The name of the file being processed.
+     *                  int 'filelines' The number of lines in the file.
+     *                  int 'linenumber' The current line being processed.
+     *                  \stdClass 'state' The state object.
+     *                  string 'entity' The entity being processed.
+     *                  int 'maxruntime' The maximum number of seconds allowed for this run.
+     *                  int 'starttime' The timestamp when this run started.
+     * @param rlip_fileplugin_base $fileplugin The file plugin in use.
+     */
+    protected function hook_did_process_record($record, $metadata, $fileplugin) {
+        // Do nothing by default.
+    }
+
+    /**
      * Entry point for processing an import file
      *
      * @param string $entity The type of entity
@@ -430,12 +468,27 @@ abstract class importplugin_base extends \rlip_dataplugin implements importplugi
                 $this->dblogger->flush($filename);
                 return $state;
             }
+
+            $metadata = [
+                'filepath' => $filepath,
+                'filename' => $filename,
+                'filelines' => $filelines,
+                'linenumber' => $this->linenumber,
+                'state' => $state,
+                'entity' => $entity,
+                'maxruntime' => $maxruntime,
+                'starttime' => $starttime,
+            ];
+            $this->hook_will_process_record($record, $metadata, $fileplugin);
+
             // Index the import record with the appropriate keys.
             $record = $this->index_record($header, $record);
 
             // Track return value.
             // TODO: change second parameter when in the cron.
             $result = $this->process_record($entity, $record, $filename);
+
+            $this->hook_did_process_record($record, $metadata, $fileplugin);
 
             $this->dblogger->track_success($result, true);
         }

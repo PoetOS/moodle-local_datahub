@@ -88,6 +88,8 @@ class ajax extends base {
         $result = new \stdClass;
         $result->success = $success;
         $result->data = $data;
+        $baselink = new \moodle_url('/local/datahub/importplugins/version2/ajax.php');
+        $result->baselink = (string)$baselink;
         return json_encode($result);
     }
 
@@ -96,8 +98,66 @@ class ajax extends base {
      */
     protected function mode_getqueuelist() {
         global $DB;
-        $records = $DB->get_records(queueprovider::QUEUETABLE, null, 'queueorder ASC');
-        echo $this->ajax_response($records, true);
+        $output = [];
+        $sql = 'SELECT q.id AS qid,
+                       q.userid AS quserid,
+                       q.filename AS qfilename,
+                       q.status AS qstatus,
+                       q.state AS qstate,
+                       u.*
+                  FROM {'.queueprovider::QUEUETABLE.'} q
+                  JOIN {user} u ON u.id = q.userid
+              ORDER BY q.queueorder ASC';
+        $params = [];
+        $records = $DB->get_recordset_sql($sql, $params);
+        foreach ($records as $record) {
+            // Calculate various metadata.
+            $type = ($record->qstatus == queueprovider::STATUS_PROCESSING) ? 'processing' : 'waiting';
+            $status = get_string('queue_status_'.$type, 'dhimport_version2');
+            if ($type === 'scheduled') {
+                $scheduledtime = time(); //TODO
+                $reschedule = 1;
+                $draggable = 0;
+            } else {
+                $scheduledtime = 0;
+                $reschedule = 0;
+                $draggable = 1;
+            }
+
+            // Unpack process progress.
+            $recordstotal = 0;
+            $recordscomplete = 0;
+            if (!empty($record->qstate)) {
+                $state = @unserialize($record->qstate);
+                if (!empty($state)) {
+                    if (isset($state->filelines)) {
+                        $recordstotal = $state->filelines;
+                    }
+                    if (isset($state->linenumber)) {
+                        $recordscomplete = $state->linenumber;
+                    }
+                }
+            }
+            $progress = ($recordstotal > 0) ? round(($recordscomplete/$recordstotal)*100) : 0;
+
+            // Assemble the full output record.
+            $toadd = [
+                'id' => (int)$record->qid,
+                'userid' => (int)$record->quserid,
+                'user_fullname' => fullname($record),
+                'filename' => $record->qfilename,
+                'type' => $type,
+                'status' => $status,
+                'scheduled_time' => $scheduledtime,
+                'progress' => $progress,
+                'reschedule' => $reschedule,
+                'draggable' => $draggable,
+                'records_total' => $recordstotal,
+                'records_complete' => $recordscomplete,
+            ];
+            $output[] = $toadd;
+        }
+        echo $this->ajax_response($output, true);
     }
 
     /**

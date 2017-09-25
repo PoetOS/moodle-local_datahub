@@ -148,6 +148,42 @@ class importplugin extends \local_datahub\importplugin_base {
     }
 
     /**
+     * A hook that is called after a record is processed.
+     *
+     * @param \stdClass $record The record that was processed.
+     * @param array $metadata Various items of metadata about the process run.
+     *                  string 'filepath' The path where the file is stored.
+     *                  string 'filename' The name of the file being processed.
+     *                  int 'filelines' The number of lines in the file.
+     *                  int 'linenumber' The current line being processed.
+     *                  \stdClass 'state' The state object.
+     *                  string 'entity' The entity being processed.
+     *                  int 'maxruntime' The maximum number of seconds allowed for this run.
+     *                  int 'starttime' The timestamp when this run started.
+     * @param rlip_fileplugin_base $fileplugin The file plugin in use.
+     */
+    protected function hook_did_process_record($record, $metadata, $fileplugin) {
+        global $DB;
+
+        if ($this->provider instanceof queueprovider) {
+            if (isset($metadata['state'])) {
+                $state = clone $metadata['state'];
+                if (isset($metadata['filelines'])) {
+                    $state->filelines = $metadata['filelines'];
+                }
+                if (isset($metadata['linenumber'])) {
+                    $state->linenumber = $metadata['linenumber'];
+                }
+                $newrecord = (object)[
+                    'id' => $this->provider->get_queueid(),
+                    'state' => serialize($state),
+                ];
+                $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
+            }
+        }
+    }
+
+    /**
      * Mainline for running the import.
      *
      * @param int $targetstarttime The timestamp for when this task was meant to be run.
