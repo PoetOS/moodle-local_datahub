@@ -26,6 +26,7 @@
         <FIELD NAME="state" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="queueorder" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="scheduledtime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>

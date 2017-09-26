@@ -236,6 +236,7 @@ class importplugin extends \local_datahub\importplugin_base {
              // Should never happen.
              return null;
         }
+        $origstatus = $record->status;
 
         // Queued import is in progress.
         $newrecord = (object)['id' => $record->id, 'status' => queueprovider::STATUS_PROCESSING];
@@ -250,9 +251,11 @@ class importplugin extends \local_datahub\importplugin_base {
             // Job is not finished, and state is saved for next cron job run.
             $newrecord = (object)[
                 'id' => $record->id,
-                'status' => queueprovider::STATUS_QUEUED,
                 'state' => serialize($result),
             ];
+            $newrecord->status = ($origstatus == queueprovider::STATUS_SCHEDULED)
+                ? queueprovider::STATUS_SCHEDULED
+                : queueprovider::STATUS_QUEUED;
             $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
             return null;
         }

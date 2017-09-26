@@ -111,6 +111,7 @@ class ajax extends base {
                        q.filename AS qfilename,
                        q.status AS qstatus,
                        q.state AS qstate,
+                       q.scheduledtime AS qscheduledtime,
                        u.*
                   FROM {'.queueprovider::QUEUETABLE.'} q
                   JOIN {user} u ON u.id = q.userid
@@ -120,9 +121,12 @@ class ajax extends base {
         foreach ($records as $record) {
             // Calculate various metadata.
             $type = ($record->qstatus == queueprovider::STATUS_PROCESSING) ? 'processing' : 'waiting';
+            if (!empty($record->qscheduledtime) && $type == 'waiting') {
+                $type = 'scheduled';
+            }
             $status = get_string('queue_status_'.$type, 'dhimport_version2');
             if ($type === 'scheduled') {
-                $scheduledtime = time(); //TODO
+                $scheduledtime = userdate($record->qscheduledtime);
                 $reschedule = 1;
                 $draggable = 0;
             } else {

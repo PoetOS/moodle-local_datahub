@@ -132,6 +132,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -159,6 +160,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_ERRORS,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -170,6 +172,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_FINISHED,
             'state' => '',
             'queueorder' => 1,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -181,6 +184,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 2,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -192,6 +196,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 3,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -203,6 +208,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_ERRORS,
             'state' => '',
             'queueorder' => 4,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -214,6 +220,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_FINISHED,
             'state' => '',
             'queueorder' => 5,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -223,6 +230,118 @@ class version2_queue_testcase extends \rlip_test {
         $provider = new testqueueprovider();
 
         $expected = $queuerecord2->id;
+        $actual = $provider->get_queueid();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test get_queueid gets scheduled records first.
+     */
+    public function test_getqueueidgetsscheduledfirst() {
+        global $DB, $USER;
+
+        $this->setAdminUser();
+        $now = time();
+
+        $queuerecord0 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_ERRORS,
+            'state' => '',
+            'queueorder' => 0,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord0->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord0);
+
+        $queuerecord1 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_FINISHED,
+            'state' => '',
+            'queueorder' => 1,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
+
+        $queuerecord2 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
+            'queueorder' => 2,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord2->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord2);
+
+        $queuerecord3 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_SCHEDULED,
+            'state' => '',
+            'queueorder' => 3,
+            'scheduledtime' => time() + 100000,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord3->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord3);
+
+        $queuerecord4 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_SCHEDULED,
+            'state' => '',
+            'queueorder' => 4,
+            'scheduledtime' => time() - 100000,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord4->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord4);
+
+        $queuerecord5 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_SCHEDULED,
+            'state' => '',
+            'queueorder' => 5,
+            'scheduledtime' => time() - 100000,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord5->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord5);
+
+        $queuerecord6 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_ERRORS,
+            'state' => '',
+            'queueorder' => 4,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord6->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord6);
+
+        $queuerecord7 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_FINISHED,
+            'state' => '',
+            'queueorder' => 5,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord7->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord7);
+
+        $provider = new testqueueprovider();
+
+        $expected = $queuerecord4->id;
         $actual = $provider->get_queueid();
         $this->assertEquals($expected, $actual);
     }
@@ -241,6 +360,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -252,6 +372,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_PROCESSING,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -287,6 +408,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -316,6 +438,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -392,6 +515,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -466,6 +590,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,
@@ -618,6 +743,7 @@ class version2_queue_testcase extends \rlip_test {
             'status' => queueprovider::STATUS_QUEUED,
             'state' => '',
             'queueorder' => 0,
+            'scheduledtime' => 0,
             'timemodified' => $now,
             'timecreated' => $now,
             'timecompleted' => 0,

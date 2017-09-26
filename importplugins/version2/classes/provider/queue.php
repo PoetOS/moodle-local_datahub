@@ -48,6 +48,9 @@ class queue extends \rlip_importprovider {
     /** Queue entry is processing. */
     const STATUS_PROCESSING = 3;
 
+    /** Queue entry is scheduled. */
+    const STATUS_SCHEDULED = 4;
+
     /** The table that holds the queue. */
     const QUEUETABLE = 'dhimport_version2_queue';
 
@@ -74,16 +77,24 @@ class queue extends \rlip_importprovider {
             $DB->update_record(static::QUEUETABLE, $current);
         }
 
-        // Nothing is currently being processed, checking for unprocessed.
-        $files = [];
-        $params = ['status' => static::STATUS_QUEUED];
-        $queue = $DB->get_records(static::QUEUETABLE, $params, 'queueorder asc');
+        // Check for scheduled items first.
+        $select = 'status = ? AND scheduledtime <= ?';
+        $params = [static::STATUS_SCHEDULED, time()];
+        $queue = $DB->get_records_select(static::QUEUETABLE, $select, $params, 'queueorder asc', '*', 0, 1);
         if (!empty($queue)) {
             $next = reset($queue);
             $this->queueid = $next->id;
-            $files = $this->build_files($this->queueid);
+            $this->files = $this->build_files($this->queueid);
+        } else {
+            // Nothing is currently being processed, checking for unprocessed.
+            $params = ['status' => static::STATUS_QUEUED];
+            $queue = $DB->get_records(static::QUEUETABLE, $params, 'queueorder asc');
+            if (!empty($queue)) {
+                $next = reset($queue);
+                $this->queueid = $next->id;
+                $this->files = $this->build_files($this->queueid);
+            }
         }
-        $this->files = $files;
     }
 
     /**
