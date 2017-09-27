@@ -760,6 +760,74 @@ class version2enrolmentimport_testcase extends rlip_test {
     }
 
     /**
+     * Data provider for remove_role tests.
+     *
+     * @return array remove_role test values and expected outcome.
+     */
+    public function removerole_dataprovider() {
+        return [
+                ['1', false],
+                ['TrUe', false],
+                ['yEs', false],
+                ['All', false],
+                ['courseroleid', false],
+                ['0', true],
+                ['fAlSE', true],
+                ['No', true],
+                ['', true]
+        ];
+    }
+
+    /**
+     * Validate the enrolment import update remove_role.
+     *
+     * @param string $removerole The remove_role value to use.
+     * @param bool $notreplaced The expected outcome of remove_role value.
+     * @dataProvider removerole_dataprovider
+     */
+    public function test_version2importenrolupdateremoverole($removerole, $notreplaced) {
+        global $DB;
+
+        $this->run_core_enrolment_import([]);
+
+        // Compare data.
+        // User enrolment.
+        $enrolid = $DB->get_field('enrol', 'id', ['enrol' => 'manual', 'courseid' => self::$courseid]);
+        $this->assert_record_exists('user_enrolments', [
+            'userid' => self::$userid,
+            'enrolid' => $enrolid
+        ]);
+
+        // Role assignment.
+        $coursecontext = context_course::instance(self::$courseid);
+        $this->assert_record_exists('role_assignments', [
+            'userid' => self::$userid,
+            'roleid' => self::$courseroleid,
+            'contextid' => $coursecontext->id
+        ]);
+
+        // Run role replacement.
+        if ($removerole == 'courseroleid') {
+            $removerole = $DB->get_field('role', 'shortname', ['id' => self::$courseroleid]);
+        }
+        $this->run_core_enrolment_import([
+            'enrolmentaction' => 'update',
+            'role' => 'allshortname',
+            'remove_role' => $removerole
+        ]);
+        $this->assert_record_exists('role_assignments', [
+            'userid' => self::$userid,
+            'roleid' => self::$allcontextroleid,
+            'contextid' => $coursecontext->id
+        ]);
+        $this->assertEquals($notreplaced, $DB->record_exists('role_assignments', [
+            'userid' => self::$userid,
+            'roleid' => self::$courseroleid,
+            'contextid' => $coursecontext->id
+        ]));
+    }
+
+    /**
      * Validate that setting up course enrolments only works within the course
      * context
      */

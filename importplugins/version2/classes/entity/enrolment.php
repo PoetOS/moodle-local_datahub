@@ -49,6 +49,7 @@ class enrolment extends base {
             'enrolmenttime',
             'completetime',
             'status',
+            'remove_role',
         ];
         return $fields;
     }
@@ -352,7 +353,7 @@ class enrolment extends base {
                     // Collect success message for logging at end of action.
                     $logmessages[] = "User with {$userdescriptor} successfully updated enrolment on {$contextdescriptor}.";
                 }
-            } else {
+            } else if ($action != 'update' || empty($record->remove_role)) {
                 // Duplicate enrolment attempt.
                 $errstr = "User with {$userdescriptor} is already assigned role ";
                 $errstr .= "with shortname \"{$record->role}\" on {$contextdescriptor}. ";
@@ -370,19 +371,26 @@ class enrolment extends base {
             }
         } else {
             if ($roleassignmentexists) {
-                // Role assignment already exists, so this action serves no purpose.
-                $errstr = "User with {$userdescriptor} is already assigned role ";
-                $errstr .= "with shortname \"{$record->role}\" on {$contextdescriptor}.";
-                $this->log_failure($errstr, $record);
-                return false;
+                if ($action == 'update' && !empty($record->remove_role)) {
+                    // Don't want to exit here if we have more to do, so just log error and continue.
+                    $message = "User with {$userdescriptor} is already assigned role with ";
+                    $message .= "shortname \"{$record->role}\" on {$contextdescriptor}.";
+                    $logmessages[] = $message;
+                } else {
+                    // Role assignment already exists, so this action serves no purpose.
+                    $errstr = "User with {$userdescriptor} is already assigned role ";
+                    $errstr .= "with shortname \"{$record->role}\" on {$contextdescriptor}.";
+                    $this->log_failure($errstr, $record);
+                    return false;
+                }
+            } else {
+                role_assign($roleid, $userid, $context->id);
+
+                // Collect success message for logging at end of action.
+                $message = "User with {$userdescriptor} successfully assigned role ";
+                $message .= "with shortname \"{$record->role}\" on {$contextdescriptor}.";
+                $logmessages[] = $message;
             }
-
-            role_assign($roleid, $userid, $context->id);
-
-            // Collect success message for logging at end of action.
-            $message = "User with {$userdescriptor} successfully assigned role ";
-            $message .= "with shortname \"{$record->role}\" on {$contextdescriptor}.";
-            $logmessages[] = $message;
         }
 
         if ($enrolresult === false) {
@@ -391,6 +399,67 @@ class enrolment extends base {
             $errstr .= "likely due to manual enrolments being disabled.";
             $this->log_failure($errstr, $record);
             return false;
+        }
+
+        if ($action == 'update' && !empty($record->remove_role)) {
+            $rridentifier = $this->mappings['remove_role'];
+            $roleassignparams = [
+                'contextid' => $context->id,
+                'userid' => $userid,
+                'component' => '',
+                'itemid' => 0,
+            ];
+            $numroleassigns = $DB->count_records('role_assignments', $roleassignparams);
+            $lcremoverole = strtolower($record->remove_role);
+            if ($roleid && in_array($lcremoverole, ['1', 'yes', 'true', 'all'])) {
+                if ($numroleassigns > 1 && ($lcremoverole == 'all' || $numroleassigns == 2)) {
+                    $select = 'roleid != ? AND contextid = ? AND userid = ? AND component = "" AND itemid = 0';
+                    $params = [$roleid, $context->id, $userid];
+                    $fields = 'id,roleid,userid,contextid,component,itemid';
+                    $recs = $DB->get_records_select('role_assignments', $select, $params , '', $fields);
+                    foreach ($recs as $rec) {
+                        $rdata = (array)$rec;
+                        unset($rdata['id']);
+                        role_unassign_all($rdata);
+                        $rmrolename = $DB->get_field('role', 'shortname', ['id' => $rec->roleid]);
+                        $message = "User with {$userdescriptor} successfully unassigned role with";
+                        $message .= " shortname \"{$rmrolename}\" on {$contextdescriptor}.";
+                        $logmessages[] = $message;
+                    }
+                } else if ($numroleassigns <= 1) {
+                    // Error no other role assignments exist.
+                    $logmessages[] = "No other role assignments exist for User with {$userdescriptor} on {$contextdescriptor}.";
+                } else {
+                    // Error multiple role assignments, remove_role too ambiguous, must set to all or specify role shortname.
+                    $message = "Multiple role assignments exist for User with {$userdescriptor} on {$contextdescriptor};";
+                    $message .= " {$rridentifier} too ambiguous - set to \"all\" or  a valid role shortname.";
+                    $logmessages[] = $message;
+                }
+            } else if ($lcremoverole != 'no' && $lcremoverole != 'false') {
+                if ($numroleassigns > 1) {
+                    if (($rmroleid = $DB->get_field('role', 'id', ['shortname' => $record->remove_role]))) {
+                        $params = $roleassignparams;
+                        $params['roleid'] = $rmroleid;
+                        if ($DB->record_exists('role_assignments', $params)) {
+                            role_unassign_all($params);
+                            $message = "User with {$userdescriptor} successfully unassigned role with";
+                            $message .= " shortname \"{$record->remove_role}\" on {$contextdescriptor}.";
+                            $logmessages[] = $message;
+                        } else {
+                            // Error remove_role not assigned!
+                            $message = "Cannot remove role with shortname \"{$record->remove_role}\"";
+                            $message .= " - not assigned for User with {$userdescriptor} on {$contextdescriptor}.";
+                            $logmessages[] = $message;
+                        }
+                    } else {
+                        // Error invalid remove_role specified.
+                        $logmessages[] = "Invalid {$rridentifier} value of \"{$record->remove_role}\" specified.";
+                    }
+                } else {
+                    // Error cannot remove only role assignment.
+                    $logmessages[] = "Cannot remove only role assignment for User with {$userdescriptor} on {$contextdescriptor}.";
+                }
+            }
         }
 
         if ($record->context == 'course' && isset($record->group)) {
