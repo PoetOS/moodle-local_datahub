@@ -92,7 +92,7 @@ class ajax extends base {
         $result = new \stdClass;
         $result->success = $success;
         $result->data = $data;
-        $baselink = new \moodle_url('/local/datahub/importplugins/version2/ajax.php');
+        $baselink = new \moodle_url('/local/datahub/');
         $result->baselink = (string)$baselink;
         foreach ($extraparams as $param => $val) {
             $result->$param = $val;
@@ -271,6 +271,25 @@ class ajax extends base {
         $record = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $itemid]);
         if (!empty($record)) {
             $DB->delete_records(queueprovider::QUEUETABLE, ['id' => $record->id]);
+            echo $this->ajax_response(null, true);
+        } else {
+            $errmsg = get_string('queue_error_itemnotfound', 'dhimport_version2');
+            echo $this->error_response($errmsg, static::ERROR_QUEUEITEMNOTFOUND);
+        }
+    }
+
+    /**
+     * Reschedule a scheduled queue task.
+     */
+    protected function mode_reschedule() {
+        global $DB;
+        $itemid = required_param('itemid', PARAM_INT);
+        $time = required_param('time', PARAM_INT);
+        $params = ['id' => $itemid, 'status' => queueprovider::STATUS_SCHEDULED];
+        $record = $DB->get_record(queueprovider::QUEUETABLE, $params);
+        if (!empty($record)) {
+            $newrecord = (object)['id' => $record->id, 'scheduledtime' => $time];
+            $DB->update_record(queueprovider::QUEUETABLE, $newrecord);
             echo $this->ajax_response(null, true);
         } else {
             $errmsg = get_string('queue_error_itemnotfound', 'dhimport_version2');
