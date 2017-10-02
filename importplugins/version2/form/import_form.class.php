@@ -82,6 +82,7 @@ class version2_import_form extends moodleform {
             } else {
                 $scheduletime = $data->queuetimestamp;
             }
+            $filename = $this->get_new_filename('version2importfile');
             $queueorder = $DB->get_field_select(queueprovider::QUEUETABLE, 'MAX(queueorder)', 'queueorder > 0');
             $queueorder++;
             $queuerecord = (object)[
@@ -89,6 +90,7 @@ class version2_import_form extends moodleform {
                 'status' => queueprovider::STATUS_QUEUED,
                 'state' => '',
                 'queueorder' => $queueorder,
+                'filename' => $filename,
                 'timemodified' => $now,
                 'timecreated' => $now,
                 'timecompleted' => 0,
