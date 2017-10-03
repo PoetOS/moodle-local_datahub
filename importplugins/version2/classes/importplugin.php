@@ -64,16 +64,12 @@ class importplugin extends \local_datahub\importplugin_base {
      */
     public function get_manualrun_url() {
         global $CFG;
-        return $CFG->wwwroot.'/local/datahub/importplugins/manualrun2.php';
-        /*
-        We'll use this once the UI is further along.
 
         $directories = \core_component::get_plugin_types();
         $directory = $directories['dhimport'];
         $directory = str_replace($CFG->dirroot, $CFG->wwwroot, $directory);
         list($prefix, $plugintype, $pluginname) = explode('_', get_called_class());
         return $directory.'/'.$pluginname.'/';
-         */
     }
 
     /**
