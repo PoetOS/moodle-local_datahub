@@ -28,7 +28,6 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
     var datesequence_error = M.util.get_string('queuedateordererror', 'local_datahub');
     var startinvalid_error = M.util.get_string('queuestartinvaliderror', 'local_datahub');
     var endinvalid_error = M.util.get_string('queueendinvaliderror', 'local_datahub');
-    var receivedtimestamp_error = M.util.get_string('timestampinvaliderror', 'local_datahub');
     var tznotify = M.util.get_string('queuenotimezone', 'local_datahub');
     var nojobs_error = M.util.get_string('queuenojobserror', 'local_datahub');
     var refresh_error = M.util.get_string('queuerefresherror', 'local_datahub');
@@ -160,6 +159,17 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
         }, 30000);
     }
 
+    function hide_feedback(type, tableobj) {
+        if (!tableobj) {
+            // Y.log('no table object');
+            tableobj = $('.local_datahub_queue');
+        }
+        var well = tableobj.find('.queue_' + type);
+        if (well.hasClass('show')) {
+            well.removeClass('show');
+        }
+    }
+
     /**
      * Checks for font-awesome in the page and if it's not there
      * injects the link into the page head.
@@ -187,23 +197,16 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      */
     function build_timestamp(row) {
         // Y.log('build_timestamp()');
-        var d = get_now_dateobj();
+        var now = Date.now();
         var pickerval = row.find('input.reschedule_task').val();
-        // Y.log('pickerval = ' + pickerval);
-        // Y.log(Date.parse(pickerval));
         var parse = Date.parse(pickerval);
-        var date = new Date(parse.getUTCFullYear(),
-                        parse.getUTCMonth(),
-                        parse.getUTCDate(),
-                        parse.getUTCHours(),
-                        parse.getUTCMinutes(),
-                        parse.getUTCSeconds());
+        // Y.log('parsed pickerval = ' + parse);
         // If time is invalid or is before current time, then error.
         // Otherwise we build the timestamp and send it back.
-        if (parse <= d || isNaN(parse)) {
+        if (parse <= now || isNaN(parse)) {
             return false;
         } else {
-            return Date.parse(date) / 1000;
+            return parse / 1000;
         }
     }
 
@@ -239,11 +242,6 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             e.stopPropagation();
             $(e.currentTarget).parents('.alert').removeClass('show');
         });
-    }
-
-    function get_now_dateobj() {
-        var now = Date.now();
-        return new Date(now);
     }
 
     function get_now_isostring(includetime) {
@@ -286,7 +284,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function renderjobsqueue(obj, existingjobs) {
-        Y.log('renderjobsqueue');
+        // Y.log('renderjobsqueue');
         if (obj.data.length <= 0) {
             // Y.log('There are no queue jobs to show.');
             var nojobsdata = {'type': 'queue'};
@@ -322,7 +320,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function refresh_jobs() {
-        Y.log('refresh_jobs');
+        // Y.log('refresh_jobs');
         // If there are existing jobs, remove them.
         var existingjobs = $('.table.jobs .job-row, .table.jobs .job-reschedule-row');
         if (existingjobs.length >= 1) {
@@ -347,8 +345,8 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             success: function(data) {
                 var obj = {};
                 obj = data;
-                console.log('refresh jobs success, logging object');
-                console.log(obj);
+                // console.log('refresh jobs success, logging object');
+                // console.log(obj);
                 if (obj && obj.success === true) {
                     // Y.log('pause success');
                     // Success!
@@ -409,7 +407,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function reorder_jobs() {
-        Y.log('reorder_jobs');
+        // Y.log('reorder_jobs');
         // If there is a reordered class on the table
         var rows = $('#queue_job_table tr[data-type="processing"], ' +
                 '#queue_job_table tr[data-type="waiting"]');
@@ -434,7 +432,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
                 success: function(data) {
                     var obj = {};
                     obj = data;
-                    console.log(obj);
+                    // console.log(obj);
                     // renderjobsqueue(obj);
                     if (obj && obj.success === true) {
                         // Y.log('pause success');
@@ -466,7 +464,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function pause_processing() {
-        Y.log('pause_processing');
+        // Y.log('pause_processing');
         // Call AJAX to pause.
         $.ajax({
             method: "GET",
@@ -488,7 +486,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             success: function(data) {
                 var obj = {};
                 obj = data;
-                console.log(obj);
+                // console.log(obj);
                 if (obj && obj.success === true) {
                     // Y.log('pause success');
                     // Success!
@@ -514,7 +512,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function save_reschedule(row, jobid) {
-        Y.log('save_reschedule()');
+        // Y.log('save_reschedule()');
         // Fades all controls.
         row.children('p, label, .queue_date_select').css('opacity', '0.5');
         // Shows processing icon.
@@ -557,7 +555,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
                 success: function(data) {
                     var obj = {};
                     obj = data;
-                    // console.log(obj);
+                    // Y.log(obj);
                     // Hide the panel.
                     row.hide();
                     if (obj && obj.success === true) {
@@ -594,7 +592,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function cancel_job(row, jobid) {
-        Y.log('cancel_job');
+        // Y.log('cancel_job');
         // Show loading indicator.
         show_reschedule_indicator(row);
         // Call AJAX to pause.
@@ -618,7 +616,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             success: function(data) {
                 var obj = {};
                 obj = data;
-                console.log(obj);
+                // console.log(obj);
                 if (obj && obj.success === true) {
                     // Success!
                     hide_reschedule_indicator(row);
@@ -670,6 +668,9 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
         $('#continue_scheduled').removeAttr('disabled').on('click', function(e) {
             e.stopImmediatePropagation();
             show_pause_indicator(e.currentTarget);
+            // Clear feedback.
+            hide_feedback('alert', $('.local_datahub_queue'));
+            hide_feedback('success', $('.local_datahub_queue'));
             reorder_jobs();
         });
         queue_sortable.sortable('enable');
@@ -705,6 +706,9 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             e.stopImmediatePropagation();
             // Show processing icon.
             show_pause_indicator(e.currentTarget);
+            // Clear feedback.
+            hide_feedback('alert', $('.local_datahub_queue'));
+            hide_feedback('success', $('.local_datahub_queue'));
             // Remove all listeners.
             remove_default_listeners();
             // Only add the pause processing listener
@@ -719,6 +723,10 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
         // Reschedule.
         $('.reschedule_job').on('click', function(e) {
             e.preventDefault();
+            // Clear feedback.
+            hide_feedback('alert', $('.local_datahub_queue'));
+            hide_feedback('success', $('.local_datahub_queue'));
+            // Remove listeners.
             remove_default_listeners();
             // Get the job id.
             var jobid = $(e.currentTarget).attr('data-id');
@@ -730,6 +738,10 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
         // Cancel job.
         $('.cancel_job').on('click', function(e) {
             e.preventDefault();
+            // Clear feedback.
+            hide_feedback('alert', $('.local_datahub_queue'));
+            hide_feedback('success', $('.local_datahub_queue'));
+            // Remove listeners.
             remove_default_listeners();
             // Get the job id.
             var jobid = $(e.currentTarget).attr('data-id');
@@ -751,7 +763,10 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
     function add_complete_listeners() {
         // Click event for the refresh button.
         $('#completed_refresh').on('click', function() {
+            hide_feedback('alert', $('.local_datahub_completed'));
+            hide_feedback('success', $('.local_datahub_completed'));
             update_date_objects(datesequence_error, startinvalid_error, endinvalid_error);
+
         });
     }
 
@@ -760,11 +775,10 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
     }
 
     function update_date_objects(datesequence_error, startinvalid_error, endinvalid_error) {
-        Y.log('update_date_objects()');
+        // Y.log('update_date_objects()');
         // Fetch the ISOs from the fields.
         var startfield = Date.parse($('#completed_startdate').val());
         var endfield = Date.parse($('#completed_enddate').val());
-        // var date = new Date(parse.getUTCFullYear(), parse.getUTCMonth(), parse.getUTCDate(),  23, 59, 59);
         // Validate timestamps.
         if (!!isNaN(startfield)) {
             show_feedback('alert', startinvalid_error, $('.local_datahub_completed'));
@@ -804,7 +818,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
     }
 
     function update_date_display() {
-        Y.log('update_date_display');
+        // Y.log('update_date_display');
         var max = get_datepicker_minmax('max');
         var min = get_datepicker_minmax('min');
         var startdatestring = completed_start.getFullYear() + '-' +
@@ -820,7 +834,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
     }
 
     function rendercompletequeue(obj, existingcomplete) {
-        Y.log('rendercompletequeue');
+        // Y.log('rendercompletequeue');
         completed_start = new Date(obj.start * 1000);
         completed_end = new Date(obj.end * 1000);
         // update_date_display();
@@ -835,6 +849,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
                     existingcomplete.remove();
                     add_complete_listeners();
                     show_feedback('alert', nojobs_error, $('.local_datahub_completed'));
+                    update_date_display();
                 })
                 .fail(notification.exception);
 
@@ -858,7 +873,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function set_default_completed_range() {
-        console.log('default_completed_range');
+        // console.log('default_completed_range');
         var n = Date.now();
         if (!completed_end) {
             completed_end = new Date(n);
@@ -875,7 +890,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      * @return none
      */
     function refresh_complete() {
-        console.log('refresh_complete');
+        // console.log('refresh_complete');
         // If there are existing jobs, remove them.
         var existingcomplete = $('.table.completed-jobs .job-row');
         if (existingcomplete.length >= 1) {
@@ -884,7 +899,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
         show_loading_state('completed');
         var startstamp = String(Math.floor(completed_start/1000));
         var endstamp = String(Math.floor(completed_end/1000));
-        Y.log('startstamp = ' + startstamp + ' , endstamp = ' + endstamp);
+        // Y.log('startstamp = ' + startstamp + ' , endstamp = ' + endstamp);
         // Get basic data for rendering the students list.
         $.ajax({
             method: "GET",
@@ -905,8 +920,8 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             success: function(data) {
                 var obj = {};
                 obj = data;
-                console.log('refresh_complete, logging object');
-                console.log(obj);
+                // console.log('refresh_complete, logging object');
+                // console.log(obj);
                 if (obj && obj.success === true) {
                     // Y.log('refresh_complete AJAX successful');
                     // Success!
@@ -955,7 +970,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
          */
         init: function(sesskey) {
             session_key = sesskey;
-            // Y.log('Queue jobs list initialized.');
+            Y.log('Queue jobs list initialized.');
             $(document).ready(function(){
                 setup();
             });

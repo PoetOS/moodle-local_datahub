@@ -242,16 +242,12 @@ class behat_dhimport_version2 extends behat_base {
     /**
      * @Given /^I insert "(?P<count>(?:[^"]|\\")*)" "(?P<type>(?:[^"]|\\")*)" jobs$/
      * @param  String  $count    Number of records to insert.
-     * @param  String  $type     Either "queued" or "completed"
+     * @param  String  $type     Either "queued", "completed", "processing", or "scheduled"
      * @return none
      */
     public function i_insert_jobs($count, $type) {
         global $CFG, $DB, $USER;
         $count = (int)$count;
-        $completed = true;
-        if ($type == 'queued') {
-            $completed = false;
-        }
         if ($count <= 0) {
             $message = sprintf('Count of "%1s" records does not make sense here.', $count);
             throw new \Exception($message);
@@ -259,19 +255,29 @@ class behat_dhimport_version2 extends behat_base {
         $records = array();
         for ($x = 0; $x < $count; $x++) {
             $record = new stdClass();
-            $record->filename = 'inserted_record_'.$x.'.csv';
+            $record->filename = 'inserted_record_'.$type.'_'.$x.'.csv';
             $record->userid = $USER->id;
             $record->queueorder = $x + 1;
             $record->state = 0;
+            $record->status = 0;
+            $record->timecompleted = 0;
             $record->timemodified = time();
             $record->timecreated = time();
-            if (!$completed) {
-                $record->timecompleted = 0;
-                $record->status = 0;
-            } else {
-                // Get timestamp x days ago, for some variance.
-                $record->timecompleted = (time() - ($x * 24 * 60 * 60)) / 1000;
+            $record->scheduledtime = 0;
+            if ($type == 'completed') {
                 $record->status = 1;
+                $record->timecompleted = (time() - ($x * 24 * 60 * 60)) / 1000;
+            } else if ($type == 'processing') {
+                $record->status = 3;
+                $process = new stdClass();
+                $process->filelines = 200;
+                $process->linenumber = rand(0, 200);
+                $record->state = @serialize($process);
+            } else if ($type == 'scheduled') {
+                $record->status = 4;
+                $future = new DateTime();
+                $future->add(new DateInterval('P3D'));
+                $record->scheduledtime = date_timestamp_get($future);
             }
             $records[] = $record;
         }
