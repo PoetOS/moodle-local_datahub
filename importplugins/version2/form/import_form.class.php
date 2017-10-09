@@ -94,7 +94,7 @@ class version2_import_form extends moodleform {
                 'timemodified' => $now,
                 'timecreated' => $now,
                 'timecompleted' => 0,
-                /*'scheduledtime' => $scheduletime */ // TODO: implement scheduletime once db scheme is updated.
+                'scheduledtime' => $scheduletime,
             ];
             $queuerecord->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord);
             $csvfile = $queueprovider->build_files($queuerecord->id);
