@@ -292,4 +292,20 @@ class behat_dhimport_version2 extends behat_base {
         $cron = file_get_contents($CFG->wwwroot.'/admin/cli/cron.php');
     }
 
+    /**
+     * @Given /^The queue should be (paused|waiting)$/
+     * @param  String  $status Either "paused", "waiting".
+     * @return none
+     */
+    public function the_queue_should_be($status) {
+        global $DB;
+        // The get_config function caches values that have been updated by web requests requiring a direct db query needed.
+        $record = $DB->get_record('config_plugins', ['plugin' => 'dhimport_version2', 'name' => 'queuepaused']);
+        $paused = !empty($record->value);
+        if ($status == 'paused' && !$paused) {
+            throw \Exception("Queue should be paused and it is waiting");
+        } else if ($status == 'waiting' && $paused) {
+            throw \Exception("Queue should be waiting and it is paused");
+        }
+    }
 }

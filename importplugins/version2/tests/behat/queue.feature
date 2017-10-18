@@ -58,6 +58,7 @@ Feature: Queue tab with queue of scheduled tasks and table of completed tasks
         And I forgivingly check visibility for ".local_datahub_queue table .queue_alert" "css_element"
         And I click on "#pause_scheduled" "css_element"
         And I wait "15" seconds
+        And The queue should be paused
         Then The element "table.jobs" should have class "drag-active"
         And I reorder ".local_datahub_queue table.jobs.drag-active .job-row.draggable" draggables
         And I click on "#continue_scheduled" "css_element"
@@ -79,8 +80,30 @@ Feature: Queue tab with queue of scheduled tasks and table of completed tasks
         And I go to the Data Hub Version 2 UI
         And I insert "2" "scheduled" jobs
         And I click on "Queue" "link" in the "ul.nav-tabs" "css_element"
+        And I wait "5" seconds
         And I reschedule a job to "cancel"
         And I reschedule a job to "now"
         Then I forgivingly check visibility for ".queue_success_msg" "css_element"
         And I reschedule a job to "2018-09-02T00:00"
         Then I forgivingly check visibility for ".queue_success_msg" "css_element"
+
+    Scenario: Pause queue with no files in queue
+        Given I log in as "admin"
+        And I go to the Data Hub Version 2 UI
+        And The queue should be waiting
+        And I click on "Queue" "link" in the "ul.nav-tabs" "css_element"
+        And I click on "#pause_scheduled" "css_element"
+        And I forgivingly check visibility for ".local_datahub_queue table .queue_success" "css_element"
+        And I wait "15" seconds
+        And the "#pause_scheduled" "css_element" should be disabled
+        And I click on "#continue_scheduled" "css_element"
+        And I forgivingly check visibility for ".local_datahub_queue table .queue_alert" "css_element"
+        And I click on "#pause_scheduled" "css_element"
+        And I wait "15" seconds
+        And The queue should be paused
+        Then The element "table.jobs" should have class "drag-active"
+        And I click on "#continue_scheduled" "css_element"
+        And I forgivingly check visibility for ".local_datahub_queue table .queue_success" "css_element"
+        And the "#continue_scheduled" "css_element" should be disabled
+        And I wait "15" seconds
+        And The queue should be waiting

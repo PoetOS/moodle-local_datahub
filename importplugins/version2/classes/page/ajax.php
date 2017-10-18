@@ -168,6 +168,9 @@ class ajax extends base {
             ];
             $output[] = $toadd;
         }
+        $output[] = [
+            'status' => (bool)get_config('dhimport_version2', 'queuepaused'),
+        ];
         echo $this->ajax_response($output, true);
     }
 
@@ -220,6 +223,9 @@ class ajax extends base {
             $DB->update_record(queueprovider::QUEUETABLE, $updateobj);
             $queueorder++;
         }
+
+        // After tasks have been reordered it is assumed that the queue is to be resumed.
+        set_config('queuepaused', false, 'dhimport_version2');
 
         // Return the queue list. In the correct order.
         $this->mode_getqueuelist();

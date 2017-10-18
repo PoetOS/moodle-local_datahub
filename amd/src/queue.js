@@ -24,6 +24,8 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
     var finish_order = [];
     var completed_start = null;
     var completed_end = null;
+    // Status for queue. True = paused.
+    var queuepausestatus = false;
     // Strings that we don't want to fetch twice.
     var datesequence_error = M.util.get_string('queuedateordererror', 'local_datahub');
     var startinvalid_error = M.util.get_string('queuestartinvaliderror', 'local_datahub');
@@ -285,6 +287,13 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
      */
     function renderjobsqueue(obj, existingjobs) {
         // Y.log('renderjobsqueue');
+        var info = obj.data.pop();
+        if (info.status) {
+            queuepausestatus = true;
+        } else {
+            queuepausestatus = false;
+        }
+        $('#pause_scheduled').attr('status', queuepausestatus);
         if (obj.data.length <= 0) {
             // Y.log('There are no queue jobs to show.');
             var nojobsdata = {'type': 'queue'};
@@ -297,6 +306,10 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
                     govern_reschedule_radios();
                     init_draggables();
                     show_feedback('alert', nojobs_error);
+                    // When there is no jobs and the queue is paused, ensure pause is diabled.
+                    if ($('#pause_scheduled').attr('status')) {
+                        add_drag_listeners();
+                    }
                 })
                 .fail(notification.exception);
         } else {
@@ -310,6 +323,9 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
                     govern_reschedule_radios();
                     init_draggables();
                     update_reschedule_dates();
+                    if (queuepausestatus) {
+                        add_drag_listeners();
+                    }
                 })
                 .fail(notification.exception);
         }
@@ -455,6 +471,30 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             hide_pause_indicator();
             show_feedback('alert', resched_nochange);
             remove_drag_listeners();
+            // Unpause queue.
+            $.ajax({
+                method: "GET",
+                // Toggle true or false response to test.
+                url: M.cfg.wwwroot + '/local/datahub/importplugins/version2/ajax.php?mode=pausequeue' +
+                        '&enabled=0' +
+                        '&sesskey=' + session_key,
+                dataType: 'json',
+                timeout: 30000,
+                data: {},
+                error: function(req, resulttype, exc) {
+                    // Show error text in the page.
+                    show_feedback('alert', pause_error);
+                    hide_pause_indicator();
+                    add_default_listeners();
+                },
+                success: function(obj) {
+                    if (!(obj && obj.success === true)) {
+                        // Y.log('pause fail');
+                        // Show error text in the page.
+                        show_feedback('alert', pause_error);
+                    }
+                }
+            });
         }
     }
 
@@ -480,7 +520,7 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
                 // console.log(req + ' ' + resulttype + ' ' + exc);
                 // Show error text in the page.
                 show_feedback('alert', pause_error);
-                hide_pause_indicator($('#pause_scheduled'));
+                hide_pause_indicator();
                 add_default_listeners();
             },
             success: function(data) {
@@ -492,13 +532,13 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
                     // Success!
                     // Call function to do drag listening.
                     show_feedback('success', pause_success);
-                    hide_pause_indicator($('#pause_scheduled'));
+                    hide_pause_indicator();
                     add_drag_listeners();
                 } else {
                     // Y.log('pause fail');
                     // Show error text in the page.
                     show_feedback('alert', pause_error);
-                    hide_pause_indicator($('#pause_scheduled'));
+                    hide_pause_indicator();
                     add_default_listeners();
                 }
             }
@@ -715,10 +755,8 @@ define(['jquery', 'jqueryui', 'core/templates', 'core/notification'],
             // if there are rows that can be reordered.
             var rows = $('#queue_job_table tr[data-type="processing"], ' +
                 '#queue_job_table tr[data-type="waiting"]');
-            if (rows.length >= 1) {
-                // Call pause processing.
-                pause_processing();
-            }
+            // Call pause processing.
+            pause_processing();
         });
         // Reschedule.
         $('.reschedule_job').on('click', function(e) {
