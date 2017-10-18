@@ -308,4 +308,30 @@ class behat_dhimport_version2 extends behat_base {
             throw \Exception("Queue should be waiting and it is paused");
         }
     }
+
+    /**
+     * @Given /^pause processing config is "([^"]*)"$/
+     * @param  String  $paused  Pause is "enabled/1/true" or "disabled"
+     * @return Boolean          Boolean for visibility of element.
+     */
+    public function pause_processing_config_is($paused) {
+        // Convert string param to boolean.
+        $paused_bool = false;
+        if ($paused === 'enabled' || $paused === '1' || $paused === 'true') {
+            $paused_bool = true;
+        }
+        // Iterates the get_config() because otherwise execution
+        // can be too fast to catch the change.
+        $count = 10;
+        while ($count > 0) {
+            try {
+                $paused_bool == (bool)get_config('dhimport_version2', 'queuepaused');
+                $count = -10;
+                return true;
+            } catch (\Exception $e) {
+                $count--;
+                $this->getSession()->wait(self::TIMEOUT * 1000, self::PAGE_READY_JS);
+            }
+        }
+    }
 }

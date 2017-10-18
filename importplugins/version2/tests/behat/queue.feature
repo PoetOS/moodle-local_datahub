@@ -51,12 +51,20 @@ Feature: Queue tab with queue of scheduled tasks and table of completed tasks
         And I insert "8" "completed" jobs
         And I go to the Data Hub Version 2 UI
         And I click on "Queue" "link" in the "ul.nav-tabs" "css_element"
+        And pause processing config is "disabled"
         And I click on "#pause_scheduled" "css_element"
+        And pause processing config is "enabled"
         And I forgivingly check visibility for ".local_datahub_queue table .queue_success" "css_element"
+        And the "#pause_scheduled" "css_element" should be disabled
+        And I reload the page
         And the "#pause_scheduled" "css_element" should be disabled
         And I click on "#continue_scheduled" "css_element"
         And I forgivingly check visibility for ".local_datahub_queue table .queue_alert" "css_element"
+        And pause processing config is "disabled"
+        And I reload the page
+        And the "#continue_scheduled" "css_element" should be disabled
         And I click on "#pause_scheduled" "css_element"
+        And pause processing config is "enabled"
         And I wait "15" seconds
         And The queue should be paused
         Then The element "table.jobs" should have class "drag-active"
@@ -64,6 +72,8 @@ Feature: Queue tab with queue of scheduled tasks and table of completed tasks
         And I click on "#continue_scheduled" "css_element"
         And I forgivingly check visibility for ".local_datahub_queue table .queue_success" "css_element"
         And the "#continue_scheduled" "css_element" should be disabled
+        And I wait "2" seconds
+        And pause processing config is "disabled"
 
     Scenario: Cancel button successfully reschedules or shows notification
         Given I log in as "admin"

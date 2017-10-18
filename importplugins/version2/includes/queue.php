@@ -31,7 +31,8 @@ $stringman = get_string_manager();
 $strings = $stringman->load_component_strings('local_datahub', 'en');
 $PAGE->requires->strings_for_js(array_keys($strings), 'local_datahub');
 $sesskey = sesskey();
-$args = array($sesskey);
+$paused = (bool)get_config('dhimport_version2', 'queuepaused');
+$args = array($sesskey, $paused);
 $PAGE->requires->js_call_amd('local_datahub/queue', 'init', $args);
 // Print queue table.
 $output = $PAGE->get_renderer('local_datahub');
