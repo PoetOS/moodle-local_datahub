@@ -115,8 +115,9 @@ class ajax extends base {
                        u.*
                   FROM {'.queueprovider::QUEUETABLE.'} q
                   JOIN {user} u ON u.id = q.userid
-              ORDER BY q.queueorder ASC';
-        $params = [];
+                 WHERE q.status NOT IN (?, ?)
+              ORDER BY q.scheduledtime ASC, q.queueorder ASC';
+        $params = [queueprovider::STATUS_FINISHED, queueprovider::STATUS_ERRORS];
         $records = $DB->get_recordset_sql($sql, $params);
         foreach ($records as $record) {
             // Calculate various metadata.
