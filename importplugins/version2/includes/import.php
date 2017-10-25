@@ -23,6 +23,12 @@
 
 require_once($CFG->dirroot.'/lib/adminlib.php');
 require_once($CFG->dirroot.'/local/datahub/importplugins/version2/form/import_form.class.php');
+$stringman = get_string_manager();
+$strings = $stringman->load_component_strings('local_datahub', 'en');
+$PAGE->requires->strings_for_js(array_keys($strings), 'local_datahub');
+$sesskey = sesskey();
+$args = array($sesskey);
+$PAGE->requires->js_call_amd('local_datahub/queue', 'init', $args);
 
 $form = new version2_import_form(null, ['Import file']);
 if ($form->is_submitted() && $form->is_validated()) {

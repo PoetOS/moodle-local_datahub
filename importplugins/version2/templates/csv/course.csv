@@ -1,2 +1,3 @@
 *courseaction,*shortname,fullname,idnumber,summary,format,numsections,startdate,newsitems,showgrades,showreports,maxbytes,guest,password,visible,lang,category,link,theme
 the type of action (ex:update add create delete),the course short name,the course full name,the course id number,the course summary,the course format,the number of sections in the course,the start date of the course,the news items preference,the setting to show grades,the setting to show reports,the maximum bytes,guest access preference,guest access password,the course visibility,the course default language,the course category,the course link,the course theme
+update,shortname,fullname,courseid,a summary of the course,weekly,5,10/31/2018,5,0,1,1048576,1,password,1,en,1,c1,altitude

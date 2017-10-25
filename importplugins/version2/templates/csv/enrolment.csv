@@ -1,2 +1,3 @@
 *enrolmentaction,*username,*email,*idnumber,*context,*instance,*role,group,grouping,enrolmenttime,completetime,status,remove_role
 the type of action (ex:update add create delete),the user's username,the user's email,the user's id number,the enrolment context,the enrolment instance,the role for the enrolment,the enrolment group,the enrolment grouping,the enrolment start time,the enrolment completion time,the enrolment status,remove or update enrolment
+update,student2,student2@abc.com,student2,course,demo,student,group1,0,10/31/2017,10/31/2018,active,update

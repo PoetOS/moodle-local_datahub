@@ -46,6 +46,7 @@ if (($csvhandle = fopen("./templates/csv/".$file, "r")) !== false) {
 // Iterate over CSV fields and get only the fields and data that was selected.
 $selectedfields = array();
 $selecteddata = array();
+$sampledata = array();
 for ($i=0; $i<count($csvdata[0]); $i++) {
     $header = $csvdata[0][$i];
     if (isset($fields->{$header}) && $fields->{$header} === 1) {
@@ -55,8 +56,10 @@ for ($i=0; $i<count($csvdata[0]); $i++) {
         $selectedfields[] = $header;
         if (isset($csvdata[1][$i])) {
             $selecteddata[] = $csvdata[1][$i];
-        } else {
+            $sampledata[] = $csvdata[2][$i];
+       } else {
             $selecteddata[] = '';
+            $sampledata[] = '';
         }
     }
 }
@@ -65,3 +68,5 @@ header('Content-Disposition: attachment; filename="dhtemplate_'.$file.'"');
 echo implode(",", $selectedfields);
 echo "\n";
 echo implode(",", $selecteddata);
+echo "\n";
+echo implode(",", $sampledata);

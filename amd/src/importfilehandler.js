@@ -88,6 +88,10 @@ define(['jquery', 'core/log', 'core/notification', 'local_datahub/papaparse'], f
 
         // Update timezone message with timezone according to javascript.
         var jstimezone = new Date().toString().match(/([A-Z]+[\+-][0-9]+.*)/)[1];
+        if (window.Intl && typeof window.Intl === 'object'){
+            // We have Intl so get the timezone.
+            var jstimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        }
         $('#timezoneholder').html(jstimezone);
 
         // Validation interval checker.
