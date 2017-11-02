@@ -32,7 +32,7 @@ require_once($CFG->dirroot.'/local/datahub/lib/rlip_fslogger.class.php');
 /**
  * Logger which saves messages to importqueuelog.
  */
-class dblogger extends \rlip_fslogger {
+class dblogger extends \dhimport_version2\fslogger {
     /** @var int $queueid Queue id of import. */
     protected $queueid = 0;
 
@@ -45,6 +45,19 @@ class dblogger extends \rlip_fslogger {
         $this->queueid = $queueid;
         $this->fileplugin = null;
         $this->manual = false;
+    }
+
+    /**
+     * API hook for customizing the contents for a file-system log line / record
+     *
+     * @param string $message The message to long
+     * @param int $timestamp The timestamp to associate the message with, or 0 for the current time
+     * @param string $filename The name of the import / export file we are reporting on
+     * @param int $entitydescriptor A descriptor of which entity from an import file we are handling, if applicable
+     * @param boolean $success True if the operation was a success, otherwise false
+     */
+    public function customize_record($message, $timestamp = 0, $filename = NULL, $entitydescriptor = NULL, $success = false) {
+        return $message;
     }
 
     /**

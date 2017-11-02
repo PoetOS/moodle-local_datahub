@@ -501,6 +501,165 @@ class version2_queue_testcase extends \rlip_test {
     }
 
     /**
+     * Simple test enrolment import, start-to-finish.
+     */
+    public function test_queuedenrolmentimport() {
+        global $DB, $CFG, $USER;
+
+        $this->setAdminUser();
+        $now = time();
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+
+        // Create queue record.
+        $queuerecord1 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
+            'queueorder' => 0,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
+
+        // Write file.
+        $data = [
+            [
+                    'enrolmentaction',
+                    'username',
+                    'context',
+                    'instance',
+                    'role',
+            ],
+            [
+                    'create',
+                    $user->username,
+                    'course',
+                    $course->shortname,
+                    'student',
+            ]
+        ];
+        if (!file_exists($CFG->dataroot.'/datahub')) {
+            mkdir($CFG->dataroot.'/datahub');
+        }
+        if (!file_exists($CFG->dataroot.'/datahub/dhimport_version2')) {
+            mkdir($CFG->dataroot.'/datahub/dhimport_version2');
+        }
+        $filename = $CFG->dataroot.'/datahub/dhimport_version2/'.$queuerecord1->id.'.csv';
+        $data = implode(',', $data[0])."\n".implode(',', $data[1]);
+        file_put_contents($filename, $data);
+
+        $provider = new testqueueprovider();
+        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin->run();
+
+        $enrolrec = $DB->get_record('enrol', ['enrol' => 'manual', 'courseid' => $course->id]);
+        $exists = $DB->record_exists('user_enrolments', ['userid' => $user->id, 'enrolid' => $enrolrec->id]);
+        $this->assertTrue($exists, 'Enrolment was not created.');
+
+        $ctx = \context_course::instance($course->id);
+        $role = $DB->get_record('role', ['shortname' => 'student']);
+        $exists = $DB->record_exists('role_assignments', ['roleid' => $role->id, 'contextid' => $ctx->id, 'userid' => $user->id]);
+        $this->assertTrue($exists, 'Role assignment was not created.');
+
+        $queuerecord1new = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $expected = queueprovider::STATUS_FINISHED;
+        $actual = $queuerecord1new->status;
+        $this->assertEquals($expected, $actual, 'Queue record status was not updated.');
+
+        // Check log record.
+        $logrecord = $DB->get_record(queueprovider::LOGTABLE, ['queueid' => $queuerecord1->id]);
+        $this->assertNotEmpty($logrecord, 'No log record found');
+        $msg = 'User with username "'.$user->username.'" successfully assigned role with shortname "student" on ';
+        $msg .= 'course "'.$course->shortname.'". ';
+        $msg .= 'User with username "'.$user->username.'" enrolled in course with shortname "'.$course->shortname.'".';
+        $expectedrecord = (object)[
+            'status' => 1,
+            'message' => $msg,
+            'filename' => $queuerecord1->id.'.csv',
+            'line' => 1,
+        ];
+        $this->assertLogRecord($expectedrecord, $logrecord);
+    }
+
+    /**
+     * Simple test course import, start-to-finish.
+     */
+    public function test_queuedcourseimport() {
+        global $DB, $CFG, $USER;
+
+        $this->setAdminUser();
+        $now = time();
+
+        $user = $this->getDataGenerator()->create_user();
+        $coursecat = $this->getDataGenerator()->create_category();
+
+        // Create queue record.
+        $queuerecord1 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
+            'queueorder' => 0,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
+
+        // Write file.
+        $data = [
+            [
+                    'courseaction',
+                    'fullname',
+                    'shortname',
+                    'category',
+            ],
+            [
+                    'create',
+                    'Test course',
+                    'testcourse',
+                    $coursecat->name,
+            ]
+        ];
+        if (!file_exists($CFG->dataroot.'/datahub')) {
+            mkdir($CFG->dataroot.'/datahub');
+        }
+        if (!file_exists($CFG->dataroot.'/datahub/dhimport_version2')) {
+            mkdir($CFG->dataroot.'/datahub/dhimport_version2');
+        }
+        $filename = $CFG->dataroot.'/datahub/dhimport_version2/'.$queuerecord1->id.'.csv';
+        $data = implode(',', $data[0])."\n".implode(',', $data[1]);
+        file_put_contents($filename, $data);
+
+        $provider = new testqueueprovider();
+        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin->run();
+
+        $exists = $DB->record_exists('course', ['fullname' => 'Test course']);
+        $this->assertTrue($exists, 'Course was not created.');
+
+        $queuerecord1new = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $expected = queueprovider::STATUS_FINISHED;
+        $actual = $queuerecord1new->status;
+        $this->assertEquals($expected, $actual, 'Queue record status was not updated.');
+
+        // Check log record.
+        $logrecord = $DB->get_record(queueprovider::LOGTABLE, ['queueid' => $queuerecord1->id]);
+        $this->assertNotEmpty($logrecord, 'No log record found');
+        $expectedrecord = (object)[
+            'status' => 1,
+            'message' => 'Course with shortname "testcourse" successfully created.',
+            'filename' => $queuerecord1->id.'.csv',
+            'line' => 1,
+        ];
+        $this->assertLogRecord($expectedrecord, $logrecord);
+    }
+
+    /**
      * Simple error-triggering import.
      */
     public function test_queueduserimportwitherror() {
@@ -568,7 +727,7 @@ class version2_queue_testcase extends \rlip_test {
         $this->assertNotEmpty($logrecord, 'No log record found');
         $expectedrecord = (object)[
             'status' => 0,
-            'message' => 'Required field lastname is unspecified or empty.',
+            'message' => 'User could not be processed. Required field lastname is unspecified or empty.',
             'filename' => $queuerecord1->id.'.csv',
             'line' => 1,
         ];
