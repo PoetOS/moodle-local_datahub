@@ -1,0 +1,2 @@
+enrolmentaction,email,context,instance,role
+create,email@domain.com,contexttest,instancetest,roletest

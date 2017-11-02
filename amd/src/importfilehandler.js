@@ -136,13 +136,27 @@ define(['jquery', 'core/log', 'core/notification', 'local_datahub/papaparse'], f
                     // Check that all required fields are in the uploaded CSV.
                     var missingRequiredFields = false;
                     var missingFields = new Array();
+                    var enrolmentIDcheckComplete = false;
                     for (var i=0; i<csvCheckObj[csvType].length; i++) {
                         var header = csvCheckObj[csvType][i];
                         if (header.indexOf('*') == 0) {
                             header = header.replace('*', '');
-                            if (headerHash[header] == undefined) {
+                            // Special case for enrolments where username, email, OR idnumber is required.
+                            if (csvType == 'enrolment'
+                                    && (header == 'username' || header == 'email' || header == 'idnumber')) {
+                                // Only perform this check one to avoid multiple errors/false positive.
+                                if (enrolmentIDcheckComplete === false) {
+                                    enrolmentIDcheckComplete = true;
+                                    if (headerHash['username'] == undefined
+                                            && headerHash['email'] == undefined
+                                            && headerHash['idnumber'] == undefined) {
+                                        missingRequiredFields = true;
+                                        missingFields.push('username, email, or idnumber');
+                                    }
+                                }
+                            } else if (headerHash[header] == undefined) {
                                 missingRequiredFields = true;
-                                missingFields.push(header.replace('*', ''));
+                                missingFields.push(header);
                             }
                         }
                     }

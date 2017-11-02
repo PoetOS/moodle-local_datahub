@@ -334,4 +334,17 @@ class behat_dhimport_version2 extends behat_base {
             }
         }
     }
+
+    /**
+     * Scrolls to top of page.
+     *
+     * @Given /^I scroll to top$/
+     */
+    public function i_scroll_to_top() {
+        try {
+            $this->getSession()->executeScript("(function(){window.scrollTo(0, 0);})();");
+        } catch (Exception $e) {
+            throw new \Exception("Scroll to top failed");
+        }
+    }
 }
