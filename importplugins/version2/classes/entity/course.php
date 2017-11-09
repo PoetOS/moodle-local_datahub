@@ -634,13 +634,217 @@ class course extends base {
             require_once($CFG->dirroot.'/local/eliscore/lib/setup.php');
             require_once(\elis::lib('rollover/lib.php'));
             $courseid = $DB->get_field('course', 'id', ['shortname' => $record->link]);
+            $oldstartdate = $DB->get_field('course', 'startdate', array('shortname' => $record->link));
 
             // Perform the content rollover.
             $record->id = course_rollover($courseid);
             // Update appropriate fields, such as shortname.
             // Todo: validate if this fully works with guest enrolments?
             update_course($record);
+            if (isset($record->startdate)) {
+                $offset = $record->startdate - $oldstartdate;
+                // Update course completion.
+                $coursecompletions = $DB->get_records("course_completion_criteria", array('course' => $record->id));
+                foreach ($coursecompletions as $coursecomp) {
+                    $te = $coursecomp->timeend;
+                    if ($te > 0) {
+                        $te = $te + $offset;
+                        $coursecomp->timeend = $te;
+                        $DB->update_record('course_completion_criteria', $coursecomp);
+                    }
+                }
+                $badgelist = $DB->get_records("badge", array('courseid' => $courseid));
+                foreach ($badgelist as $badge) {
+                    $badgeexpire = $badge->expiredate;
+                    if ($badgeexpire > 0) {
+                        $badgeexpire = $badgeexpire + $offset;
+                        $badge->expiredate = $badgeexpire;
+                        $DB->update_record('badge', $badge);
+                    }
+                }
+                // Update scorms.
+                $scormitems = $DB->get_records('scorm', array('course' => $record->id));
+                foreach ($scormitems as $scorms) {
+                    $timeopen = $scorms->timeopen;
+                    $timeclose = $scorms->timeclose;
+                    $rechang = '0';
+                    if ($timeopen > '0') {
+                        $timeopen = $timeopen + $offset;
+                        $scorms->timeopen = $timeopen;
+                        $rechang = '1';
+                    }
+                    if ($timeclose > '0') {
+                        $timeclose = $timeclose + $offset;
+                        $scorms->timeclose = $timeclose;
+                        $rechang = '1';
+                    }
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('scorm', $scorms);
+                    }
+                }
 
+                // Update quizzes.
+                $quizitems = $DB->get_records('quiz', array('course' => $record->id));
+                foreach ($quizitems as $quiz) {
+                    $timeopen = $quiz->timeopen;
+                    $timeclose = $quiz->timeclose;
+                    $rechang = '0';
+                    if ($timeopen > '0') {
+                        $timeopen = $timeopen + $offset;
+                        $quiz->timeopen = $timeopen;
+                        $rechang = '1';
+                    }
+                    if ($timeclose > '0') {
+                        $timeclose = $timeclose + $offset;
+                        $quiz->timeclose = $timeclose;
+                        $rechang = '1';
+                    }
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('quiz', $quiz);
+                    }
+                }
+
+                // Update lessons.
+                $lessonitems = $DB->get_records('lesson', array('course' => $record->id));
+                foreach ($lessonitems as $lesson) {
+                    $avail = $lesson->available;
+                    $close = $lesson->deadline;
+                    $rechang = '0';
+                    if ($avail > '0') {
+                        $avail = $avail + $offset;
+                        $lesson->available = $avail;
+                        $rechang = '1';
+                    }
+                    if ($close > '0') {
+                        $close = $close + $offset;
+                        $lesson->deadline = $close;
+                        $rechang = '1';
+                    }
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('lesson', $lesson);
+                    }
+                }
+                // Update Choice.
+                $choiceitems = $DB->get_records('choice', array('course' => $record->id));
+                foreach ($choiceitems as $choice) {
+                    $avail = $choice->timeopen;
+                    $close = $choice->timeclose;
+                    $rechang = '0';
+                    if ($avail > '0') {
+                        $avail = $avail + $offset;
+                        $choice->timeopen = $avail;
+                        $rechang = '1';
+                    }
+                    if ($close > '0') {
+                        $close = $close + $offset;
+                        $choice->timeclose = $close;
+                        $rechang = '1';
+                    }
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('choice', $choice);
+                    }
+                }
+                // Update database.
+                $dataitems = $DB->get_records('data', array('course' => $record->id));
+                foreach ($dataitems as $data) {
+                    $avail = $data->timeavailablefrom;
+                    $availto = $data->timeavailableto;
+                    $timefrom = $data->timeviewfrom;
+                    $timeto = $data->timeviewto;
+                    $rechang = '0';
+                    if ($avail > '0') {
+                        $avail = $avail + $offset;
+                        $data->timeavailablefrom = $avail;
+                        $rechang = '1';
+                    }
+                    if ($availto > '0') {
+                        $availto = $availto + $offset;
+                        $data->timeavailableto = $availto;
+                        $rechang = '1';
+                    }
+                    if ($timefrom > '0') {
+                        $timefrom = $timefrom + $offset;
+                        $data->timeviewfrom = $timefrom;
+                        $rechang = '1';
+                    }
+                    if ($timeto > '0') {
+                        $timeto = $timeto + $offset;
+                        $data->timeviewto = $timeto;
+                        $rechang = '1';
+                    }
+
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('data', $data);
+                    }
+                }
+                // Update Workshop.
+                $workshopitems = $DB->get_records('workshop', array('course' => $record->id));
+                foreach ($workshopitems as $workshop) {
+                    $avail = $workshop->submissionstart;
+                    $availto = $workshop->submissionend;
+                    $timefrom = $workshop->assessmentstart;
+                    $timeto = $workshop->assessmentend;
+                    $rechang = '0';
+                    if ($avail > '0') {
+                        $avail = $avail + $offset;
+                        $workshop->submissionstart = $avail;
+                        $rechang = '1';
+                    }
+                    if ($availto > '0') {
+                        $availto = $availto + $offset;
+                        $workshop->submissionend = $availto;
+                        $rechang = '1';
+                    }
+                    if ($timefrom > '0') {
+                        $timefrom = $timefrom + $offset;
+                        $workshop->assessmentstart = $timefrom;
+                        $rechang = '1';
+                    }
+                    if ($timeto > '0') {
+                        $timeto = $timeto + $offset;
+                        $workshop->assessmentend = $timeto;
+                        $rechang = '1';
+                    }
+
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('workshop', $workshop);
+                    }
+                }
+                // Update assignment.
+                $assignmentitems = $DB->get_records('assign', array('course' => $record->id));
+                foreach ($assignmentitems as $assign) {
+                    $avail = $assign->duedate;
+                    $availto = $assign->allowsubmissionsfromdate;
+                    $timefrom = $assign->cutoffdate;
+                    $rechang = '0';
+                    if ($avail > '0') {
+                        $avail = $avail + $offset;
+                        $assign->duedate = $avail;
+                        $rechang = '1';
+                    }
+                    if ($availto > '0') {
+                        $availto = $availto + $offset;
+                        $assign->allowsubmissionsfromdate = $availto;
+                        $rechang = '1';
+                    }
+                    if ($timefrom > '0') {
+                        $timefrom = $timefrom + $offset;
+                        $assign->cutoffdate = $timefrom;
+                        $rechang = '1';
+                    }
+
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('assign', $assign);
+                    }
+                }
+            }
             // Log success.
             $this->fslogger->log_success("Course with shortname \"{$record->shortname}\" successfully created ".
                     " from template course with shortname \"{$record->link}\".", 0, $this->filename, $this->linenumber);
