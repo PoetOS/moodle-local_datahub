@@ -230,6 +230,9 @@ class ip_schedule_page extends workflowpage {
         if (empty($plugin)) {
             $plugin = required_param('plugin', PARAM_CLEAN);
         }
+        if ($plugin === 'dhimport_version2') {
+            throw new \moodle_exception('error_noschedulepage', 'dhimport_version2');
+        }
         list($this->type, $this->name) = explode('_', $plugin);
     }
 

@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017051500;
+$plugin->version = 2017051501;
 $plugin->release = '3.3.0.0';
 $plugin->maturity = MATURITY_ALPHA;
 $plugin->component = 'dhimport_version2';

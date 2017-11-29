@@ -18,28 +18,17 @@
  * @package dhimport_version2
  * @author Remote-Learner.net Inc
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @copyright (C) 2017 Remote Learner.net Inc http://www.remote-learner.net
+ * @copyright (C) 2017 Remote-Learner.net Inc (http://www.remote-learner.net)
  */
 
-require_once(dirname(__FILE__).'/../lib.php');
-
-function xmldb_dhimport_version2_install() {
-    global $CFG, $DB;
-
-    require_once($CFG->dirroot.'/local/datahub/lib.php');
-
-    $result = true;
-    $dbman = $DB->get_manager();
-
-    $data = [
-        'plugin' => 'dhimport_version2',
-        'label' => 'Queue process',
-        'recurrencetype' => 'period',
-        'period' => '5m',
-        'schedule' => ['period' => '5m'],
-        'timemodified' => time(),
-    ];
-    rlip_schedule_add_job($data);
-
-    return $result;
-}
+$tasks = [
+    [
+        'classname' => 'dhimport_version2\task\runqueue',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    ],
+];

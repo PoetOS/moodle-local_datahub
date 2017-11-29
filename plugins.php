@@ -78,10 +78,14 @@ foreach ($plugintypes as $plugintype) {
         $attributes = array('href' => $url);
         $config_tag = html_writer::tag('a', get_string('edit'), $attributes);
 
-        // schedule link
-        $url = $CFG->wwwroot."/local/datahub/schedulepage.php?plugin={$plugintype}_{$name}&action=list";
-        $attributes = array('href' => $url);
-        $sched_tag = html_writer::tag('a', get_string('managesched', 'local_datahub'), $attributes);
+        // Schedule link.
+        if ($plugintype.'_'.$name === 'dhimport_version2') {
+            $sched_tag = '';
+        } else {
+            $url = $CFG->wwwroot."/local/datahub/schedulepage.php?plugin={$plugintype}_{$name}&action=list";
+            $attributes = array('href' => $url);
+            $sched_tag = html_writer::tag('a', get_string('managesched', 'local_datahub'), $attributes);
+        }
 
         // Manual run link.
         $url = $instance->get_manualrun_url();

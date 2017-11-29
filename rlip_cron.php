@@ -79,6 +79,13 @@ if ($tasks && $tasks->valid()) {
 
         // validate plugin
         $plugin = $ipjob->plugin;
+
+        // Import plugin dhimport_version2 uses a regular scheduled task.
+        if ($plugin === 'dhimport_version2') {
+            mtrace('Skipping ELIS scheduled task for dhimport_version2 because it uses a regular scheduled task.');
+            continue;
+        }
+
         $plugparts = explode('_', $plugin);
         if (!in_array($plugparts[0], $pluginstorun)) {
             mtrace("{$filename}: {$rlipshortname} plugin '{$plugin}' not configured to run externally - aborting!");

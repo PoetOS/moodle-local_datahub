@@ -549,6 +549,13 @@ function run_ipjob($taskname, $maxruntime = 0) {
     }
 
     $plugin = $ipjob->plugin;
+
+    // Import plugin dhimport_version2 uses a regular scheduled task.
+    if ($plugin === 'dhimport_version2') {
+        mtrace('Skipping ELIS scheduled task for dhimport_version2 because it uses a regular scheduled task.');
+        return false;
+    }
+
     $data = unserialize($ipjob->config);
     $state = isset($data['state']) ? $data['state'] : null;
 
