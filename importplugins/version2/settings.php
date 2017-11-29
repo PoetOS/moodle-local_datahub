@@ -80,24 +80,6 @@ $settingdesc = get_string('config_schedule_files_path', 'dhimport_version2');
 $settingdefault = '/datahub/dhimport_version2';
 $settings->add(new \local_datahub\settings\admin_setting_path($settingkey, $settingname, $settingdesc, $settingdefault));
 
-// Setting for user_schedule_file.
-$settingkey = 'dhimport_version2/user_schedule_file';
-$settingname = get_string('user_schedule_file', 'dhimport_version2');
-$settingdesc = get_string('config_user_schedule_file', 'dhimport_version2');
-$settings->add(new admin_setting_configtext($settingkey, $settingname, $settingdesc, 'user.csv'));
-
-// Setting for course_schedule_file.
-$settingkey = 'dhimport_version2/course_schedule_file';
-$settingname = get_string('course_schedule_file', 'dhimport_version2');
-$settingdesc = get_string('config_course_schedule_file', 'dhimport_version2');
-$settings->add(new admin_setting_configtext($settingkey, $settingname, $settingdesc, 'course.csv'));
-
-// Setting for enrolment_schedule_file.
-$settingkey = 'dhimport_version2/enrolment_schedule_file';
-$settingname = get_string('enrolment_schedule_file', 'dhimport_version2');
-$settingdesc = get_string('config_enrolment_schedule_file', 'dhimport_version2');
-$settings->add(new admin_setting_configtext($settingkey, $settingname, $settingdesc, 'enroll.csv'));
-
 //
 // Logging settings.
 //

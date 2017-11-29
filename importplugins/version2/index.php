@@ -52,9 +52,6 @@ if (!defined('DHIMPORT_VERSION2_TAB_IMPORT')) {
 
     // DHIMPORT_VERSION2_TAB_QUEUE - Order/link reference for queue tab.
     define('DHIMPORT_VERSION2_TAB_QUEUE', 2);
-
-    // DHIMPORT_VERSION2_TAB_SETTINGS - Order/link reference for settings tab.
-    define('DHIMPORT_VERSION2_TAB_SETTINGS', 3);
 }
 
 $section = DHIMPORT_VERSION2_TAB_IMPORT;
@@ -65,11 +62,6 @@ $tabs[0][] = $tab;
 $section = DHIMPORT_VERSION2_TAB_QUEUE;
 $url = $CFG->wwwroot.'/local/datahub/importplugins/version2/?section='.$section;
 $tab = new tabobject($section, $url, get_string('version2queuetab', 'dhimport_version2'));
-$tabs[0][] = $tab;
-
-$section = DHIMPORT_VERSION2_TAB_SETTINGS;
-$url = $CFG->wwwroot.'/local/datahub/importplugins/version2/?section='.$section;
-$tab = new tabobject($section, $url, get_string('version2settingstab', 'dhimport_version2'));
 $tabs[0][] = $tab;
 
 $selectedtab = optional_param('section', 0, PARAM_INT);
