@@ -281,7 +281,7 @@ function rlipexport_version1_linked_image($url, $imageidentifier) {
     global $OUTPUT;
 
     //get the full image tag
-    $imageurl = $OUTPUT->pix_url($imageidentifier);
+    $imageurl = $OUTPUT->image_url($imageidentifier);
     $alttitle = '';
     if ($imageidentifier == 't/delete') {
         $alttitle = get_string('delete', 'dhexport_version1');

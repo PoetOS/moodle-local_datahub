@@ -367,8 +367,8 @@ class ip_schedule_page extends workflowpage {
                             : get_string('na', 'local_datahub');
                 $target = $this->get_new_page(array('id' => $ipjob->id, 'plugin' => $ipjob->plugin, 'action' => 'list')); // TBD.
                 $label = '<a name="edit" href="'. $target->url->out(true, array('action' => 'default')) .'">'. $data['label'] .'</a>';
-                $edit_link = '<a name="edit" href="'. $target->url->out(true, array('action' => 'default')) .'"><img alt="'. $edit .'" title="'. $edit .'" src="'. $OUTPUT->pix_url('t/edit') .'" /></a>';
-                $delete_link = '<a name="delete" href="'. $target->url->out(true, array('action' => 'delete')) .'"><img alt="'. $delete .'" title="'. $delete .'" src="'. $OUTPUT->pix_url('t/delete') .'" /></a>';
+                $edit_link = '<a name="edit" href="'. $target->url->out(true, array('action' => 'default')) .'"><img alt="'. $edit .'" title="'. $edit .'" src="'. $OUTPUT->image_url('t/edit') .'" /></a>';
+                $delete_link = '<a name="delete" href="'. $target->url->out(true, array('action' => 'delete')) .'"><img alt="'. $delete .'" title="'. $delete .'" src="'. $OUTPUT->image_url('t/delete') .'" /></a>';
                 $table->rowclasses[] = ''; //TBD
                 $table->data[] = array($label, $ustr, $lastruntime,
                                        $nextruntime, $modified,
