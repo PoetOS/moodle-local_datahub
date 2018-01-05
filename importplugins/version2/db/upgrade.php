@@ -31,6 +31,11 @@ function xmldb_dhimport_version2_upgrade($oldversion=0) {
 
     $dbman = $DB->get_manager();
     $result = true;
-
+    if ($oldversion < 2017111300.01) {
+       $table = new xmldb_table('dhimport_version2_log');
+       $field = new xmldb_field('message',XMLDB_TYPE_TEXT, null, null, null, null, null);
+       $dbman->change_field_type($table, $field);
+       upgrade_plugin_savepoint(true, 2017111300.01, 'local', 'dhimport_version2');
+    }
     return $result;
 }

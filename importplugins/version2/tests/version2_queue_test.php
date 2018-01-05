@@ -1006,5 +1006,81 @@ class version2_queue_testcase extends \rlip_test {
         $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser2']));
         $this->assertNotEmpty($DB->get_record('user', ['username' => 'testuser3']));
     }
+    /**
+     * Test import with large error message
+     */
+    public function test_queueduserimportwithlargeerror() {
+        global $DB, $CFG, $USER;
 
+        $this->setAdminUser();
+        $now = time();
+
+        // Create queue record.
+        $queuerecord1 = (object)[
+            'userid' => $USER->id,
+            'status' => queueprovider::STATUS_QUEUED,
+            'state' => '',
+            'queueorder' => 0,
+            'scheduledtime' => 0,
+            'timemodified' => $now,
+            'timecreated' => $now,
+            'timecompleted' => 0,
+        ];
+        $queuerecord1->id = $DB->insert_record(queueprovider::QUEUETABLE, $queuerecord1);
+       // Write file.
+        $data = [
+            [
+                    'useraction',
+                    'username',
+                    'password',
+                    'firstname',
+                    'lastname',
+                    'email',
+                    'city',
+            ],
+            [
+                    'create',
+                    'testuser',
+                    'thisisalargepasswordonalongdayapplepieandpumpkinpiefrenchtoastmontrealcandianstorontomapleleafsottawatsenatorsvancouvercanucks',
+                    'rlipfirstname',
+                    'rliplastname',
+                    'test@example.com',
+                    'Toronto',
+            ]
+        ];
+        if (!file_exists($CFG->dataroot.'/datahub')) {
+            mkdir($CFG->dataroot.'/datahub');
+        }
+        if (!file_exists($CFG->dataroot.'/datahub/dhimport_version2')) {
+            mkdir($CFG->dataroot.'/datahub/dhimport_version2');
+        }
+        $filename = $CFG->dataroot.'/datahub/dhimport_version2/'.$queuerecord1->id.'.csv';
+        $data = implode(',', $data[0])."\n".implode(',', $data[1]);
+        file_put_contents($filename, $data);
+
+        $provider = new testqueueprovider();
+        $importplugin = \rlip_dataplugin_factory::factory('dhimport_version2', $provider);
+        $importplugin->run();
+
+        $exists = $DB->record_exists('user', ['username' => 'testuser']);
+        $this->assertFalse($exists, 'User was not created.');
+
+        $queuerecord1new = $DB->get_record(queueprovider::QUEUETABLE, ['id' => $queuerecord1->id]);
+        $expected = queueprovider::STATUS_ERRORS;
+        $actual = $queuerecord1new->status;
+        $this->assertEquals($expected, $actual, 'Queue record status was not updated.');
+
+        // Check log record.
+        $lword =  'thisisalargepasswordonalongdayapplepieandpumpkinpiefrenchtoastmontrealcandianstorontomapleleafsottawatsenatorsvancouvercanucks';
+        $logrecord = $DB->get_record(queueprovider::LOGTABLE, ['queueid' => $queuerecord1->id]);
+        $this->assertNotEmpty($logrecord, 'No log record found');
+        $msg = 'User could not be processed. password value of "'.$lword.'" does not conform to your site\'s password policy.';
+        $expectedrecord = (object)[
+            'status' => 0,
+            'message' => $msg,
+            'filename' => $queuerecord1->id.'.csv',
+            'line' => 1,
+        ];
+        $this->assertLogRecord($expectedrecord, $logrecord);
+    }
 }
