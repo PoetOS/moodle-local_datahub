@@ -25,11 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['allowchangemepass'] = 'Allow "changeme" as password';
+$string['allowchangemepassforcedinconfig'] = '"Disable in Moodle cron" has been forced on in config.php: $CFG->allowchangemepass';
 $string['automatic'] = 'Automatic';
 $string['confirm_delete_ipjob'] = 'Are you sure to delete DH job #{$a}?';
 $string['completedtitle'] = 'Completed Files';
 $string['completeddesr'] = 'These are files for this date range that have already been processed. To select a new date range, edit the text field or use the arrow buttons. Then select the <strong>Refresh</strong> button.';
 $string['completeddate'] = 'Date Completed';
+$string['configallowchangemepass'] = 'If enabled, this setting allows for using the literal value "changeme" within the Datahub import file (not recommended.)';
 $string['configdisableincron'] = 'If enabled, this setting disables this plugin from running in the Moodle cron. Use this setting when running imports & exports via a separate system-level cron.';
 $string['createdirectoryerror'] = 'Error creating directory: {$a}';
 $string['datahub:addinstance'] = 'Add a DataHub instance';

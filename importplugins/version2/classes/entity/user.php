@@ -365,8 +365,8 @@ class user extends base {
             $record->lang = $CFG->lang;
         }
 
-        // See if we should force password change.
-        $requireforcepasswordchange = ($record->password == 'changeme') ? true : false;
+        // Force password change only when 'changeme' not allowed as an actual value.
+        $requireforcepasswordchange = (!$CFG->allowchangemepass && $record->password == 'changeme') ? true : false;
 
         //write to the database
         $record->descriptionformat = FORMAT_HTML;
@@ -475,10 +475,10 @@ class user extends base {
             $record->id = $uid;
         }
 
-        // See if we should force password change.
-        $requireforcepasswordchange = (isset($record->password) && $record->password == 'changeme') ? true : false;
+        // Force password change only when 'changeme' not allowed as an actual value.
+        $requireforcepasswordchange = (!$CFG->allowchangemepass && isset($record->password) && $record->password == 'changeme') ? true : false;
 
-        // If we require force password change, do not actually change users existing password to "changeme".
+        // If forcing password change, do not actually change users existing password.
         if ($requireforcepasswordchange) {
             unset($record->password);
         }

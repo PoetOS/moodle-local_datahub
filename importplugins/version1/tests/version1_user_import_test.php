@@ -563,6 +563,33 @@ class version1userimport_testcase extends rlip_test {
     }
 
     /**
+     * Validate that changeme can be used as valid password
+     * if allowed in config on user update
+     */
+    public function test_version1importallowschangemepasswordonupdate() {
+        global $CFG, $DB;
+        $this->set_password_policy_for_tests();
+        $this->run_core_user_import(array());
+
+        // Set the option to allow using the literal value 'changeme'
+        $CFG->allowchangemepass = true;
+
+        $data = array('action' => 'update', 'username' => 'rlipusername', 'password' => 'changeme');
+
+        $this->run_core_user_import($data, false);
+
+        // Make sure the data hasn't changed.
+        $this->assert_record_exists('user', array(
+                'username' => 'rlipusername',
+                'mnethostid' => $CFG->mnet_localhost_id,
+        ));
+
+        // Validate password.
+        $userrec = $DB->get_record('user', array('username' => 'rlipusername'));
+        $this->assertTrue(validate_internal_user_password($userrec, 'changeme'));
+    }
+
+    /**
      * Validate that invalid email addresses can't be set on user creation
      */
     public function test_version1importpreventsinvaliduseremailoncreate() {

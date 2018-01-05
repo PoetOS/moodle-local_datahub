@@ -44,4 +44,12 @@ if ($hassiteconfig) {
     } else {
         $settings->add(new admin_setting_heading('local_datahub/disableincron_override', '', get_string('cronforcedinconfig', 'local_datahub')));
     }
+
+    // Setting for allowing 'changeme' as password
+    if (empty($CFG->allowchangemepass)) {
+        $settings->add(new admin_setting_configcheckbox('local_datahub/allowchangemepass', get_string('allowchangemepass', 'local_datahub'),
+            get_string('configallowchangemepass', 'local_datahub'), ''));
+    } else {
+        $settings->add(new admin_setting_heading('local_datahub/allowchangemepass_override', '', get_string('allowchangemepassforcedinconfig', 'local_datahub')));
+    }
 }
