@@ -812,7 +812,8 @@ class rlip_importplugin_version1 extends rlip_importplugin_base {
         }
 
         // Force password change only when 'changeme' not allowed as an actual value.
-        $requireforcepasswordchange = (!$CFG->allowchangemepass && $record->password == 'changeme') ? true : false;
+        $allowchangemepass = isset($CFG->allowchangemepass) ? $CFG->allowchangemepass : get_config('local_datahub', 'allowchangemepass');
+        $requireforcepasswordchange = (!$allowchangemepass && $record->password == 'changeme') ? true : false;
 
         //write to the database
         $record->descriptionformat = FORMAT_HTML;
@@ -1120,7 +1121,8 @@ class rlip_importplugin_version1 extends rlip_importplugin_base {
         }
 
         // Force password change only when 'changeme' not allowed as an actual value.
-        $requireforcepasswordchange = (isset($record->password) && !$CFG->allowchangemepass && $record->password == 'changeme') ? true : false;
+        $allowchangemepass = isset($CFG->allowchangemepass) ? $CFG->allowchangemepass : get_config('local_datahub', 'allowchangemepass');
+        $requireforcepasswordchange = (isset($record->password) && !$allowchangemepass && $record->password == 'changeme') ? true : false;
 
         // If forcing password change, do not actually change users existing password.
         if ($requireforcepasswordchange) {

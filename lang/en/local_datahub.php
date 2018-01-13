@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['allowchangemepass'] = 'Allow "changeme" as password';
-$string['allowchangemepassforcedinconfig'] = '"Disable in Moodle cron" has been forced on in config.php: $CFG->allowchangemepass';
+$string['allowchangemepassforcedinconfig'] = '"Allow changeme as password" has been forced on in config.php: $CFG->allowchangemepass';
 $string['automatic'] = 'Automatic';
 $string['confirm_delete_ipjob'] = 'Are you sure to delete DH job #{$a}?';
 $string['completedtitle'] = 'Completed Files';

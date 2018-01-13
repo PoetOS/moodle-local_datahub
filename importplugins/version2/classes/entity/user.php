@@ -366,7 +366,8 @@ class user extends base {
         }
 
         // Force password change only when 'changeme' not allowed as an actual value.
-        $requireforcepasswordchange = (!$CFG->allowchangemepass && $record->password == 'changeme') ? true : false;
+        $allowchangemepass = isset($CFG->allowchangemepass) ? $CFG->allowchangemepass : get_config('local_datahub', 'allowchangemepass');
+        $requireforcepasswordchange = (!$allowchangemepass && $record->password == 'changeme') ? true : false;
 
         //write to the database
         $record->descriptionformat = FORMAT_HTML;
@@ -476,7 +477,8 @@ class user extends base {
         }
 
         // Force password change only when 'changeme' not allowed as an actual value.
-        $requireforcepasswordchange = (!$CFG->allowchangemepass && isset($record->password) && $record->password == 'changeme') ? true : false;
+        $allowchangemepass = isset($CFG->allowchangemepass) ? $CFG->allowchangemepass : get_config('local_datahub', 'allowchangemepass');
+        $requireforcepasswordchange = (!$allowchangemepass && isset($record->password) && $record->password == 'changeme') ? true : false;
 
         // If forcing password change, do not actually change users existing password.
         if ($requireforcepasswordchange) {
