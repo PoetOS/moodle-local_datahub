@@ -40,7 +40,7 @@ class runqueue extends \core\task\scheduled_task {
      * Attempt token refresh.
      */
     public function execute() {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->dirroot.'/local/datahub/lib.php');
         require_once($CFG->dirroot.'/local/datahub/lib/rlip_dataplugin.class.php');
         require_once($CFG->dirroot.'/local/datahub/lib/rlip_fileplugin.class.php');
@@ -60,6 +60,9 @@ class runqueue extends \core\task\scheduled_task {
             return false;
         }
 
+        // See how many records to process.
+        $totalrecords = $DB->count_records('dhimport_version2_queue');
+
         // Run the job.
         $targetstarttime = time();
         $lastruntime = $this->get_last_run_time();
@@ -72,9 +75,10 @@ class runqueue extends \core\task\scheduled_task {
         $newstate = (!empty($newstate)) ? serialize($newstate) : '';
         $state = set_config('queuestate', $newstate, 'dhimport_version2');
 
-        // Potentially many DB updates, so clear caches.
-        \core\task\manager::clear_static_caches();
-
+        if ($totalrecords > '0') {
+            // Potentially many DB updates, so clear caches.
+            \core\task\manager::clear_static_caches();
+        }
         return true;
     }
 }
