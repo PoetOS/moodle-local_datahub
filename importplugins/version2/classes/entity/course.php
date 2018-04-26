@@ -844,6 +844,54 @@ class course extends base {
                         $DB->update_record('assign', $assign);
                     }
                 }
+                // Update forums ratings.
+                $forumitems = $DB->get_records('forum', array('course' => $record->id));
+                foreach ($forumitems as $forum) {
+                    $avail = $forum->assesstimestart;
+                    $availto = $forum->assesstimefinish;
+                    $rechang = '0';
+                    if ($avail > '0') {
+                        $avail = $avail + $offset;
+                        $forum->assesstimestart = $avail;
+                        $rechang = '1';
+                    }
+                    if ($availto > '0') {
+                        $availto = $availto + $offset;
+                        $forum->assesstimefinish = $availto;
+                        $rechang = '1';
+                    }
+
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('forum', $forum);
+                    }
+                }
+
+                // Update questionaire open / close dates.
+                $questionitems = $DB->get_records('questionnaire', array('course' => $record->id));
+                foreach ($questionitems as $questions) {
+                    $avail = $questions->opendate;
+                    $availto = $questions->closedate;
+                    $rechang = '0';
+                    if ($avail > '0') {
+                        $avail = $avail + $offset;
+                        $questions->opendate = $avail;
+                        $rechang = '1';
+                    }
+                    if ($availto > '0') {
+                        $availto = $availto + $offset;
+                        $questions->closedate = $availto;
+                        $rechang = '1';
+                    }
+
+                    // Only update record if there has been a change.
+                    if ($rechang == '1') {
+                        $DB->update_record('questionnaire', $questions);
+                    }
+                }
+
+                // Update availability conditions.
+                \availability_date\condition::update_all_dates($record->id, $offset);
             }
             // Log success.
             $this->fslogger->log_success("Course with shortname \"{$record->shortname}\" successfully created ".
